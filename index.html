@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Surecap Finance - Loan Application</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --gold: #C9A84C;
+      --white: #FFFFFF;
+      --light-bg: #F5F6FA;
+      --border-radius: 8px;
+      --transition-fast: 0.3s ease;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--light-bg);
+      color: #1b1f2a;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background-color: var(--navy);
+      color: var(--white);
+      padding: 16px 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header .brand { font-size: 22px; font-weight: 600; letter-spacing: 0.04em; }
+    header .subtitle { font-size: 13px; margin-top: 4px; opacity: 0.85; }
+
+    main {
+      padding: 16px;
+      max-width: 960px;
+      margin: 0 auto 40px;
+    }
+
+    .card {
+      background-color: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 16px rgba(27, 42, 74, 0.08);
+      padding: 16px 16px 24px;
+    }
+
+    .progress-container { margin-bottom: 16px; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #3c435a;
+    }
+
+    .progress-bar {
+      background-color: #e0e3f0;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--gold), #f0cf6a);
+      transition: width var(--transition-fast);
+    }
+
+    form { margin-top: 4px; }
+
+    #formStepsWrapper { position: relative; min-height: 420px; }
+
+    .form-step {
+      position: absolute;
+      top: 0; left: 0; width: 100%;
+      opacity: 0;
+      transform: translateX(10px);
+      pointer-events: none;
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .form-step.active {
+      position: relative;
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--navy);
+      margin: 0 0 12px;
+      border-bottom: 1px solid #e4e6f0;
+      padding-bottom: 6px;
+    }
+
+    .section-description { font-size: 13px; color: #5b627a; margin-bottom: 16px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px 16px;
+    }
+
+    @media (min-width: 640px) {
+      .form-grid.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #31374a;
+      margin-bottom: 4px;
+    }
+
+    .required { color: #c0392b; margin-left: 2px; }
+
+    input, select, button, textarea { font-family: inherit; font-size: 14px; }
+
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #cfd3e6;
+      padding: 10px 12px;
+      min-height: 48px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      background-color: #fbfcff;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.35);
+      background-color: #ffffff;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .form-field { position: relative; }
+    .form-field small.error-message {
+      display: block;
+      font-size: 12px;
+      color: #c0392b;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+    .form-field.has-error input,
+    .form-field.has-error select,
+    .form-field.has-error textarea {
+      border-color: #c0392b;
+      background-color: #fff5f3;
+    }
+
+    .inline-note { font-size: 12px; color: #7b8198; margin-top: 2px; }
+
+    .table-like {
+      border-radius: 6px;
+      border: 1px solid #d4d7e8;
+      overflow: hidden;
+      background-color: #fafbff;
+      margin-bottom: 12px;
+    }
+
+    .table-header, .table-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 8px;
+      padding: 8px 10px;
+      align-items: center;
+    }
+    .table-header {
+      background-color: #e7e9f5;
+      font-size: 12px;
+      font-weight: 600;
+      color: #3a4160;
+    }
+    .table-row:nth-child(even) { background-color: #f4f5fc; }
+
+    .read-only { background-color: #f0f2fb; color: #2f3648; }
+
+    .summary-box {
+      border-radius: 6px;
+      border: 1px solid #d7dae9;
+      background-color: #f8f9ff;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .summary-label { color: #4b5268; }
+    .summary-value { font-weight: 600; color: var(--navy); }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 20px;
+      border-top: 1px solid #e1e3f1;
+      padding-top: 16px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 12px 18px;
+      min-height: 48px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+    }
+    .btn:active { transform: translateY(1px); box-shadow: none; }
+    .btn-primary {
+      background-color: var(--navy);
+      color: var(--white);
+      box-shadow: 0 3px 10px rgba(27, 42, 74, 0.35);
+    }
+    .btn-primary:disabled {
+      background-color: #9aa0b8;
+      box-shadow: none;
+      cursor: default;
+    }
+    .btn-outline {
+      background-color: #ffffff;
+      color: var(--navy);
+      border: 1px solid #cfd3e6;
+    }
+    .btn-outline:disabled {
+      color: #9aa0b8;
+      border-color: #d7dae7;
+      cursor: default;
+    }
+    .btn-ghost {
+      background-color: transparent;
+      color: #7b8198;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px dashed #cfd3e6;
+      min-height: 40px;
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background-color: rgba(201, 168, 76, 0.12);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .checkbox-list { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 4px; }
+    @media (min-width: 640px) {
+      .checkbox-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: #3b4258;
+    }
+    .checkbox-item input[type="checkbox"] { margin-top: 4px; min-width: 18px; min-height: 18px; }
+
+    .signature-wrapper {
+      border-radius: 6px;
+      border: 1px solid #cfd3e6;
+      background-color: #fbfcff;
+      padding: 8px;
+      margin-top: 4px;
+    }
+    #signatureCanvas {
+      width: 100%;
+      height: 180px;
+      border-radius: 4px;
+      background-color: #ffffff;
+      border: 1px dashed #d0d4e4;
+      touch-action: none;
+    }
+
+    .status-message { margin-top: 10px; font-size: 14px; }
+    .status-message.success { color: #1b7b3a; }
+    .status-message.error { color: #c0392b; }
+    .hidden { display: none !important; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background-color: rgba(27, 42, 74, 0.06);
+      font-size: 11px;
+      color: #555c73;
+      margin-top: 4px;
+    }
+
+    .confirmation { text-align: center; padding: 40px 16px; }
+    .confirmation h2 { color: var(--navy); margin-bottom: 8px; }
+    .confirmation p { color: #4b5268; margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Surecap Finance</div>
+    <div class="subtitle">Credit Risk &amp; Loan Application Form</div>
+  </header>
+
+  <main>
+    <div class="card" id="formCard">
+      <div class="progress-container">
+        <div class="progress-label">
+          <span id="progressText">Step 1 of 9</span>
+          <span class="badge">Secure · Confidential</span>
+        </div>
+        <div class="progress-bar" aria-hidden="true">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <form id="loanForm" novalidate>
+        <div id="formStepsWrapper">
+          <section class="form-step active" data-step="1">
+            <h2 class="section-title">Borrower Information</h2>
+            <p class="section-description">Tell us about yourself and your employment.</p>
+            <div class="form-grid two-col">
+              <div class="form-field">
+                <label for="name">Full Name<span class="required">*</span></label>
+                <input id="name" name="name" type="text" autocomplete="name" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="email">Email Address<span class="required">*</span></label>
+                <input id="email" name="email" type="email" autocomplete="email" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="cellPhone">Cell Phone<span class="required">*</span></label>
+                <input id="cellPhone" name="cellPhone" type="tel" inputmode="tel" autocomplete="tel" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="otherPhone">Other Phone</label>
+                <input id="otherPhone" name="otherPhone" type="tel" inputmode="tel" autocomplete="tel" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field" style="grid-column: 1 / -1;">
+                <label for="address">Address<span class="required">*</span></label>
+                <input id="address" name="address" type="text" autocomplete="street-address" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="employerName">Employer Name<span class="required">*</span></label>
+                <input id="employerName" name="employerName" type="text" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="employerAddress">Employer Address</label>
+                <input id="employerAddress" name="employerAddress" type="text" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="yearsEmployed">Number of Years with Employer</label>
+                <input id="yearsEmployed" name="yearsEmployed" type="text" inputmode="decimal" class="numeric-input" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="employmentType">Employment Type<span class="required">*</span></label>
+                <select id="employmentType" name="employmentType" data-required="true">
+                  <option value="">Select...</option>
+                  <option value="Permanent">Permanent</option>
+                  <option value="Part-time">Part-time</option>
+                </select>
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="compensationType">Compensation Type<span class="required">*</span></label>
+                <select id="compensationType" name="compensationType" data-required="true">
+                  <option value="">Select...</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Commission">Commission</option>
+                </select>
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="employerPhone">Employer Telephone</label>
+                <input id="employerPhone" name="employerPhone" type="tel" inputmode="tel" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="employerEmail">Employer Email</label>
+                <input id="employerEmail" name="employerEmail" type="email" />
+                <small class="error-message"></small>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="2">
+            <h2 class="section-title">Income</h2>
+            <p class="section-description">List all recurring gross monthly income sources.</p>
+            <div class="table-like">
+              <div class="table-header">
+                <div>Source / Description</div>
+                <div>Gross Monthly Amount ($)</div>
+              </div>
+              <div class="table-row">
+                <div><input id="income1Source" type="text" placeholder="Primary income" /></div>
+                <div><input id="income1Amount" type="text" inputmode="decimal" class="currency-input" /></div>
+              </div>
+              <div class="table-row">
+                <div><input id="income2Source" type="text" placeholder="Additional income" /></div>
+                <div><input id="income2Amount" type="text" inputmode="decimal" class="currency-input" /></div>
+              </div>
+              <div class="table-row">
+                <div><input id="income3Source" type="text" placeholder="Additional income" /></div>
+                <div><input id="income3Amount" type="text" inputmode="decimal" class="currency-input" /></div>
+              </div>
+              <div class="table-row">
+                <div><input id="investmentIncomeSource" type="text" placeholder="Investments / other" /></div>
+                <div><input id="investmentIncome" type="text" inputmode="decimal" class="currency-input" /></div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="totalGrossIncome">Total Gross Monthly Income ($)<span class="required">*</span></label>
+                <input id="totalGrossIncome" name="totalGrossIncome" type="text" class="read-only" readonly data-required="true" />
+                <small class="error-message"></small>
+                <div class="inline-note">Automatically calculated.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="3">
+            <h2 class="section-title">Monthly Obligations</h2>
+            <p class="section-description">Enter all fixed monthly housing and legal obligations.</p>
+            <div class="form-grid two-col">
+              <div class="form-field"><label for="housing">Housing (Rent / Mortgage) ($)</label><input id="housing" name="housing" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="propertyTaxes">Property Taxes ($)</label><input id="propertyTaxes" name="propertyTaxes" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="condoFees">Condo Fees ($)</label><input id="condoFees" name="condoFees" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="insurance">Insurance ($)</label><input id="insurance" name="insurance" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="heating">Heating ($)</label><input id="heating" name="heating" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="alimony">Alimony ($)</label><input id="alimony" name="alimony" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="childSupport">Child Support / Alimony ($)</label><input id="childSupport" name="childSupport" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="otherObligations">Other Legal Financial Obligations ($)</label><input id="otherObligations" name="otherObligations" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="totalMonthlyObligations">Total Monthly Obligations ($)</label>
+                <input id="totalMonthlyObligations" name="totalMonthlyObligations" type="text" class="read-only" readonly />
+                <small class="error-message"></small>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="4">
+            <h2 class="section-title">Debt Payments</h2>
+            <p class="section-description">Minimum required monthly payments for each debt.</p>
+            <div class="form-grid two-col">
+              <div class="form-field"><label for="creditCards">Credit Cards (minimum payment) ($)</label><input id="creditCards" name="creditCards" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="personalLoan">Personal Loan ($)</label><input id="personalLoan" name="personalLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="autoLoan">Auto Loan ($)</label><input id="autoLoan" name="autoLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="studentLoan">Student Loan ($)</label><input id="studentLoan" name="studentLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="surecapLoanInterest">SureCap Loan Interest ($)</label><input id="surecapLoanInterest" name="surecapLoanInterest" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+            </div>
+            <div class="form-grid two-col">
+              <div class="form-field">
+                <label for="totalDebtExpenses">Total Debt Expenses ($)</label>
+                <input id="totalDebtExpenses" name="totalDebtExpenses" type="text" class="read-only" readonly />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="dti">Debt-to-Income Ratio (%)</label>
+                <input id="dti" name="dti" type="text" class="read-only" readonly />
+                <small class="error-message"></small>
+                <div class="inline-note">(Total Obligations + Total Debt Expenses) ÷ Total Income × 100</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="5">
+            <h2 class="section-title">Assets</h2>
+            <p class="section-description">Assets including properties and investments.</p>
+            <div class="form-grid two-col">
+              <div class="form-field"><label for="stocksInvestments">Stocks and Investments ($)</label><input id="stocksInvestments" name="stocksInvestments" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="otherAssets">Other Assets ($)</label><input id="otherAssets" name="otherAssets" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1Value">Property 1 Value ($)</label><input id="prop1Value" name="prop1Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2Value">Property 2 Value ($)</label><input id="prop2Value" name="prop2Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3Value">Property 3 Value ($)</label><input id="prop3Value" name="prop3Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="totalAssets">Total Assets ($)</label>
+                <input id="totalAssets" name="totalAssets" type="text" class="read-only" readonly />
+                <small class="error-message"></small>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="6">
+            <h2 class="section-title">Liabilities</h2>
+            <p class="section-description">Outstanding debt balances.</p>
+            <div class="form-grid two-col">
+              <div class="form-field"><label for="ccDebt">Credit Card Debt ($)</label><input id="ccDebt" name="ccDebt" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="lineOfCredit">Line of Credit ($)</label><input id="lineOfCredit" name="lineOfCredit" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="personalLoansLiab">Personal Loans ($)</label><input id="personalLoansLiab" name="personalLoansLiab" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="mortgage1">Total Mortgages Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="mortgage2">Total Mortgages Property 2 ($)</label><input id="mortgage2" name="mortgage2" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="mortgage3">Total Mortgages Property 3 ($)</label><input id="mortgage3" name="mortgage3" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+            </div>
+            <div class="form-grid two-col">
+              <div class="form-field">
+                <label for="totalDebt">Total Debt ($)</label>
+                <input id="totalDebt" name="totalDebt" type="text" class="read-only" readonly />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="netWorth">Net Worth ($)</label>
+                <input id="netWorth" name="netWorth" type="text" class="read-only" readonly />
+                <small class="error-message"></small>
+                <div class="inline-note">Total Assets − Total Debt</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="7">
+            <h2 class="section-title">Property Details</h2>
+            <p class="section-description">Details for up to three properties. Leave blank if not applicable.</p>
+            <div class="pill">Property 1</div>
+            <div class="form-grid two-col" style="margin-top:8px;">
+              <div class="form-field"><label for="prop1Civic">Civic Number</label><input id="prop1Civic" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1Street">Street Name</label><input id="prop1Street" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1City">City</label><input id="prop1City" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1Postal">Postal Code</label><input id="prop1Postal" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1Lot">Lot Number</label><input id="prop1Lot" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1MarketValue">Property Market Value ($)</label><input id="prop1MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1Mortgage">Total Mortgage Amount ($)</label><input id="prop1Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1Equity">Equity ($)</label><input id="prop1Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop1LTV">Debt-to-Value Ratio (%)</label><input id="prop1LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+            </div>
+            <div class="pill" style="margin-top:18px;">Property 2</div>
+            <div class="form-grid two-col" style="margin-top:8px;">
+              <div class="form-field"><label for="prop2Civic">Civic Number</label><input id="prop2Civic" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2Street">Street Name</label><input id="prop2Street" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2City">City</label><input id="prop2City" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2Postal">Postal Code</label><input id="prop2Postal" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2Lot">Lot Number</label><input id="prop2Lot" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2MarketValue">Property Market Value ($)</label><input id="prop2MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2Mortgage">Total Mortgage Amount ($)</label><input id="prop2Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2Equity">Equity ($)</label><input id="prop2Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop2LTV">Debt-to-Value Ratio (%)</label><input id="prop2LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+            </div>
+            <div class="pill" style="margin-top:18px;">Property 3</div>
+            <div class="form-grid two-col" style="margin-top:8px;">
+              <div class="form-field"><label for="prop3Civic">Civic Number</label><input id="prop3Civic" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3Street">Street Name</label><input id="prop3Street" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3City">City</label><input id="prop3City" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3Postal">Postal Code</label><input id="prop3Postal" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3Lot">Lot Number</label><input id="prop3Lot" type="text" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3MarketValue">Property Market Value ($)</label><input id="prop3MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3Mortgage">Total Mortgage Amount ($)</label><input id="prop3Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3Equity">Equity ($)</label><input id="prop3Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop3LTV">Debt-to-Value Ratio (%)</label><input id="prop3LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="8">
+            <h2 class="section-title">Documents &amp; Signature</h2>
+            <p class="section-description">Check documents you will provide and sign.</p>
+            <div class="form-field">
+              <label>Documents Checklist</label>
+              <div class="checkbox-list">
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Utilities" /><span>Utilities</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Pay stubs / proof of income" /><span>Pay stubs / proof of income</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Government assessments (3 years)" /><span>Government assessments (3 years)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Municipal tax bills" /><span>Municipal tax bills</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Condo fees" /><span>Condo fees</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Other loan contracts and interest statements" /><span>Other loan contracts and interest statements</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="documents" value="Credit report" /><span>Credit report</span></label>
+              </div>
+              <small class="error-message"></small>
+            </div>
+            <div class="form-grid two-col" style="margin-top:8px;">
+              <div class="form-field">
+                <label for="submissionDate">Date<span class="required">*</span></label>
+                <input id="submissionDate" name="submissionDate" type="date" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+              <div class="form-field">
+                <label for="borrowerNameSigned">Borrower Name (printed)<span class="required">*</span></label>
+                <input id="borrowerNameSigned" name="borrowerNameSigned" type="text" data-required="true" />
+                <small class="error-message"></small>
+              </div>
+            </div>
+            <div class="form-field" style="margin-top:10px;">
+              <label>Borrower Signature<span class="required">*</span></label>
+              <div class="signature-wrapper">
+                <canvas id="signatureCanvas"></canvas>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                  <span class="inline-note">Use your finger or mouse to sign.</span>
+                  <button type="button" id="clearSignature" class="btn-ghost">Clear</button>
+                </div>
+              </div>
+              <small class="error-message" id="signatureError"></small>
+            </div>
+          </section>
+
+          <section class="form-step" data-step="9">
+            <h2 class="section-title">Review &amp; Submit</h2>
+            <p class="section-description">Review and submit your application to Surecap Finance.</p>
+            <div class="summary-box">
+              <div class="summary-row"><div class="summary-label">Borrower Name</div><div class="summary-value" id="summaryName">–</div></div>
+              <div class="summary-row"><div class="summary-label">Total Gross Monthly Income ($)</div><div class="summary-value" id="summaryTotalIncome">–</div></div>
+              <div class="summary-row"><div class="summary-label">Debt-to-Income Ratio (%)</div><div class="summary-value" id="summaryDTI">–</div></div>
+              <div class="summary-row"><div class="summary-label">Net Worth ($)</div><div class="summary-value" id="summaryNetWorth">–</div></div>
+            </div>
+            <p class="inline-note" style="margin-top:12px;">By submitting, you confirm the information is accurate and complete.</p>
+            <div class="nav-buttons" style="margin-top:18px;">
+              <button type="button" id="prevBtnFinal" class="btn btn-outline">Previous</button>
+              <button type="button" id="submitBtn" class="btn btn-primary">Submit Application</button>
+            </div>
+            <div id="submitStatus" class="status-message"></div>
+            <button type="button" id="retryBtn" class="btn btn-outline hidden" style="margin-top:10px;">Retry Submission</button>
+          </section>
+        </div>
+
+        <div class="nav-buttons" id="stepNav">
+          <button type="button" id="prevBtn" class="btn btn-outline" disabled>Previous</button>
+          <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="confirmationCard" class="card confirmation hidden">
+      <h2>Thank you for your application.</h2>
+      <p>Your Surecap Finance credit application has been securely submitted.</p>
+      <p>Our team will review your information and contact you shortly.</p>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylc1KBxrPFJ7p2tTc31LxbbCVIPszE5nnUFGbfbR8jCxrr3Eu-aMTPizb-eb67gtov/exec";
+
+    function parseCurrency(value) {
+      if (!value) return 0;
+      const cleaned = String(value).replace(/[^0-9.\-]/g, "");
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function formatNumber(value) {
+      if (value === null || value === undefined || isNaN(value)) return "";
+      return value.toLocaleString("en-CA", { maximumFractionDigits: 2 });
+    }
+
+    function formatCurrencyInput(input) {
+      const num = parseCurrency(input.value);
+      if (!input.value.trim()) { input.value = ""; return; }
+      input.value = formatNumber(num);
+    }
+
+    function getInput(id) { return document.getElementById(id); }
+    function getValue(id) { const el = getInput(id); return el ? el.value.trim() : ""; }
+
+    function recalcIncome() {
+      const total = parseCurrency(getValue("income1Amount")) + parseCurrency(getValue("income2Amount")) + parseCurrency(getValue("income3Amount")) + parseCurrency(getValue("investmentIncome"));
+      getInput("totalGrossIncome").value = total ? formatNumber(total) : "";
+      return total;
+    }
+
+    function recalcObligations() {
+      const total = parseCurrency(getValue("housing")) + parseCurrency(getValue("propertyTaxes")) + parseCurrency(getValue("condoFees")) + parseCurrency(getValue("insurance")) + parseCurrency(getValue("heating")) + parseCurrency(getValue("alimony")) + parseCurrency(getValue("childSupport")) + parseCurrency(getValue("otherObligations"));
+      getInput("totalMonthlyObligations").value = total ? formatNumber(total) : "";
+      return total;
+    }
+
+    function recalcDebtExpenses() {
+      const total = parseCurrency(getValue("creditCards")) + parseCurrency(getValue("personalLoan")) + parseCurrency(getValue("autoLoan")) + parseCurrency(getValue("studentLoan")) + parseCurrency(getValue("surecapLoanInterest"));
+      getInput("totalDebtExpenses").value = total ? formatNumber(total) : "";
+      return total;
+    }
+
+    function recalcAssets() {
+      const total = parseCurrency(getValue("stocksInvestments")) + parseCurrency(getValue("prop1Value")) + parseCurrency(getValue("prop2Value")) + parseCurrency(getValue("prop3Value")) + parseCurrency(getValue("otherAssets"));
+      getInput("totalAssets").value = total ? formatNumber(total) : "";
+      return total;
+    }
+
+    function recalcLiabilities() {
+      const total = parseCurrency(getValue("ccDebt")) + parseCurrency(getValue("lineOfCredit")) + parseCurrency(getValue("personalLoansLiab")) + parseCurrency(getValue("mortgage1")) + parseCurrency(getValue("mortgage2")) + parseCurrency(getValue("mortgage3"));
+      getInput("totalDebt").value = total ? formatNumber(total) : "";
+      return total;
+    }
+
+    function recalcNetWorth() {
+      const totalAssets = recalcAssets();
+      const totalDebt = recalcLiabilities();
+      const netWorth = totalAssets - totalDebt;
+      getInput("netWorth").value = (totalAssets || totalDebt) ? formatNumber(netWorth) : "";
+      return netWorth;
+    }
+
+    function recalcDTI() {
+      const totalIncome = recalcIncome();
+      const obligations = recalcObligations();
+      const debtExpenses = recalcDebtExpenses();
+      const dtiInput = getInput("dti");
+      if (totalIncome > 0) {
+        const dti = ((obligations + debtExpenses) / totalIncome) * 100;
+        dtiInput.value = dti ? dti.toFixed(1) : "";
+      } else dtiInput.value = "";
+    }
+
+    function recalcPropertyEquity(index) {
+      const market = parseCurrency(getValue("prop" + index + "MarketValue"));
+      const mortgage = parseCurrency(getValue("prop" + index + "Mortgage"));
+      const equityInput = getInput("prop" + index + "Equity");
+      const ltvInput = getInput("prop" + index + "LTV");
+      if (market || mortgage) {
+        equityInput.value = formatNumber(market - mortgage);
+        if (market > 0 && mortgage >= 0) ltvInput.value = ((mortgage / market) * 100).toFixed(1);
+        else ltvInput.value = "";
+      } else { equityInput.value = ""; ltvInput.value = ""; }
+    }
+
+    function recalcAll() {
+      recalcIncome();
+      recalcObligations();
+      recalcDebtExpenses();
+      recalcAssets();
+      recalcLiabilities();
+      recalcNetWorth();
+      recalcDTI();
+      recalcPropertyEquity(1);
+      recalcPropertyEquity(2);
+      recalcPropertyEquity(3);
+    }
+
+    function showFieldError(input, message) {
+      const field = input.closest(".form-field");
+      if (!field) return;
+      field.classList.add("has-error");
+      const small = field.querySelector(".error-message");
+      if (small) small.textContent = message || "This field is required.";
+    }
+
+    function clearFieldError(input) {
+      const field = input.closest(".form-field");
+      if (!field) return;
+      field.classList.remove("has-error");
+      const small = field.querySelector(".error-message");
+      if (small) small.textContent = "";
+    }
+
+    function validateField(input) {
+      clearFieldError(input);
+      const value = input.value.trim();
+      const isRequired = input.dataset.required === "true";
+      if (isRequired && !value) { showFieldError(input, "Please fill out this field."); return false; }
+      if (value && input.type === "email") {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { showFieldError(input, "Please enter a valid email address."); return false; }
+      }
+      if (value && input.id === "totalGrossIncome") {
+        const num = parseCurrency(value);
+        if (!num || num <= 0) { showFieldError(input, "Total income must be greater than 0."); return false; }
+      }
+      return true;
+    }
+
+    function validateStep(stepNum) {
+      let valid = true;
+      const step = document.querySelector('.form-step[data-step="' + stepNum + '"]');
+      if (!step) return true;
+      step.querySelectorAll("[data-required='true']").forEach(function(input) { if (!validateField(input)) valid = false; });
+      if (stepNum === 8) {
+        document.getElementById("signatureError").textContent = "";
+        if (signaturePad && signaturePad.isEmpty()) { document.getElementById("signatureError").textContent = "Please provide your signature."; valid = false; }
+      }
+      return valid;
+    }
+
+    function updateSummary() {
+      document.getElementById("summaryName").textContent = getValue("name") || "Not provided";
+      document.getElementById("summaryTotalIncome").textContent = getValue("totalGrossIncome") || "–";
+      document.getElementById("summaryDTI").textContent = getValue("dti") || "–";
+      document.getElementById("summaryNetWorth").textContent = getValue("netWorth") || "–";
+    }
+
+    var steps = document.querySelectorAll(".form-step");
+    var totalSteps = steps.length;
+    var currentStep = 1;
+    var progressText = document.getElementById("progressText");
+    var progressFill = document.getElementById("progressFill");
+    var prevBtn = document.getElementById("prevBtn");
+    var nextBtn = document.getElementById("nextBtn");
+    var prevBtnFinal = document.getElementById("prevBtnFinal");
+    var submitBtn = document.getElementById("submitBtn");
+    var retryBtn = document.getElementById("retryBtn");
+    var stepNav = document.getElementById("stepNav");
+
+    function showStep(stepNum) {
+      currentStep = stepNum;
+      steps.forEach(function(step) { step.classList.toggle("active", Number(step.dataset.step) === stepNum); });
+      progressText.textContent = "Step " + stepNum + " of " + totalSteps;
+      progressFill.style.width = (stepNum / totalSteps) * 100 + "%";
+      if (stepNum === totalSteps) { stepNav.classList.add("hidden"); updateSummary(); }
+      else stepNav.classList.remove("hidden");
+      prevBtn.disabled = stepNum === 1;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    prevBtn.addEventListener("click", function() { if (currentStep > 1) showStep(currentStep - 1); });
+    nextBtn.addEventListener("click", function() { if (!validateStep(currentStep)) return; if (currentStep < totalSteps) showStep(currentStep + 1); });
+    prevBtnFinal.addEventListener("click", function() { showStep(totalSteps - 1); });
+
+    var signaturePad;
+    function initSignaturePad() {
+      var canvas = document.getElementById("signatureCanvas");
+      if (!canvas) return;
+      var ratio = Math.max(window.devicePixelRatio || 1, 1);
+      var parentWidth = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
+      canvas.width = parentWidth * ratio;
+      canvas.height = 180 * ratio;
+      var ctx = canvas.getContext("2d");
+      ctx.scale(ratio, ratio);
+      signaturePad = new SignaturePad(canvas, { backgroundColor: "#FFFFFF", penColor: "#1B2A4A" });
+    }
+
+    window.addEventListener("load", function() { initSignaturePad(); recalcAll(); });
+    window.addEventListener("resize", function() { initSignaturePad(); });
+
+    document.getElementById("clearSignature").addEventListener("click", function() {
+      if (signaturePad) { signaturePad.clear(); document.getElementById("signatureError").textContent = ""; }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll("[data-required='true']").forEach(function(input) { input.addEventListener("blur", function() { validateField(input); }); });
+      document.querySelectorAll(".currency-input").forEach(function(input) {
+        input.addEventListener("input", recalcAll);
+        input.addEventListener("blur", function() { formatCurrencyInput(input); recalcAll(); });
+      });
+      [1, 2, 3].forEach(function(idx) {
+        var market = document.getElementById("prop" + idx + "MarketValue");
+        var mortgage = document.getElementById("prop" + idx + "Mortgage");
+        if (market) { market.addEventListener("input", function() { recalcPropertyEquity(idx); recalcAssets(); recalcNetWorth(); }); market.addEventListener("blur", function() { formatCurrencyInput(market); recalcPropertyEquity(idx); recalcAssets(); recalcNetWorth(); }); }
+        if (mortgage) { mortgage.addEventListener("input", function() { recalcPropertyEquity(idx); recalcLiabilities(); recalcNetWorth(); }); mortgage.addEventListener("blur", function() { formatCurrencyInput(mortgage); recalcPropertyEquity(idx); recalcLiabilities(); recalcNetWorth(); }); }
+      });
+    });
+
+    var submitStatus = document.getElementById("submitStatus");
+    var formCard = document.getElementById("formCard");
+    var confirmationCard = document.getElementById("confirmationCard");
+
+    function collectDocuments() {
+      return Array.from(document.querySelectorAll("input[name='documents']:checked")).map(function(c) { return c.value; });
+    }
+
+    function buildPropertyAddress(idx) {
+      var parts = [];
+      var civic = getValue("prop" + idx + "Civic");
+      var street = getValue("prop" + idx + "Street");
+      var city = getValue("prop" + idx + "City");
+      var postal = getValue("prop" + idx + "Postal");
+      var lot = getValue("prop" + idx + "Lot");
+      if (civic || street) parts.push((civic + " " + street).trim());
+      if (city) parts.push(city);
+      if (postal) parts.push(postal);
+      if (lot) parts.push("Lot " + lot);
+      return parts.join(", ");
+    }
+
+    function buildPayload(signatureImage) {
+      var totalGrossIncome = parseCurrency(getValue("totalGrossIncome"));
+      var totalMonthlyObligations = parseCurrency(getValue("totalMonthlyObligations"));
+      var totalDebtExpenses = parseCurrency(getValue("totalDebtExpenses"));
+      var totalAssets = parseCurrency(getValue("totalAssets"));
+      var totalDebt = parseCurrency(getValue("totalDebt"));
+      var netWorth = totalAssets - totalDebt;
+      var dti = totalGrossIncome > 0 ? (((totalMonthlyObligations + totalDebtExpenses) / totalGrossIncome) * 100).toFixed(1) : "";
+      var prop1Market = parseCurrency(getValue("prop1MarketValue"));
+      var prop1Mortgage = parseCurrency(getValue("prop1Mortgage"));
+      var prop2Market = parseCurrency(getValue("prop2MarketValue"));
+      var prop2Mortgage = parseCurrency(getValue("prop2Mortgage"));
+      var prop3Market = parseCurrency(getValue("prop3MarketValue"));
+      var prop3Mortgage = parseCurrency(getValue("prop3Mortgage"));
+
+      return {
+        name: getValue("name"), address: getValue("address"), cellPhone: getValue("cellPhone"), otherPhone: getValue("otherPhone"), email: getValue("email"),
+        employerName: getValue("employerName"), employerAddress: getValue("employerAddress"), yearsEmployed: getValue("yearsEmployed"),
+        employmentType: getValue("employmentType"), compensationType: getValue("compensationType"), employerPhone: getValue("employerPhone"), employerEmail: getValue("employerEmail"),
+        income1Source: getValue("income1Source"), income1Amount: parseCurrency(getValue("income1Amount")),
+        income2Source: getValue("income2Source"), income2Amount: parseCurrency(getValue("income2Amount")),
+        income3Source: getValue("income3Source"), income3Amount: parseCurrency(getValue("income3Amount")),
+        investmentIncome: parseCurrency(getValue("investmentIncome")), totalGrossIncome: totalGrossIncome,
+        housing: parseCurrency(getValue("housing")), propertyTaxes: parseCurrency(getValue("propertyTaxes")), condoFees: parseCurrency(getValue("condoFees")),
+        insurance: parseCurrency(getValue("insurance")), heating: parseCurrency(getValue("heating")), alimony: parseCurrency(getValue("alimony")),
+        childSupport: parseCurrency(getValue("childSupport")), otherObligations: parseCurrency(getValue("otherObligations")), totalMonthlyObligations: totalMonthlyObligations,
+        creditCards: parseCurrency(getValue("creditCards")), personalLoan: parseCurrency(getValue("personalLoan")), autoLoan: parseCurrency(getValue("autoLoan")),
+        studentLoan: parseCurrency(getValue("studentLoan")), surecapLoanInterest: parseCurrency(getValue("surecapLoanInterest")), totalDebtExpenses: totalDebtExpenses, dti: dti,
+        stocksInvestments: parseCurrency(getValue("stocksInvestments")), prop1Value: prop1Market, prop2Value: prop2Market, prop3Value: prop3Market,
+        otherAssets: parseCurrency(getValue("otherAssets")), totalAssets: totalAssets,
+        ccDebt: parseCurrency(getValue("ccDebt")), lineOfCredit: parseCurrency(getValue("lineOfCredit")), personalLoansLiab: parseCurrency(getValue("personalLoansLiab")),
+        mortgage1: parseCurrency(getValue("mortgage1")), mortgage2: parseCurrency(getValue("mortgage2")), mortgage3: parseCurrency(getValue("mortgage3")),
+        totalDebt: totalDebt, netWorth: netWorth,
+        prop1Address: buildPropertyAddress(1), prop1MarketValue: prop1Market, prop1Mortgage: prop1Mortgage, prop1Equity: prop1Market - prop1Mortgage, prop1LTV: prop1Market > 0 ? ((prop1Mortgage / prop1Market) * 100).toFixed(1) : "",
+        prop2Address: buildPropertyAddress(2), prop2MarketValue: prop2Market, prop2Mortgage: prop2Mortgage, prop2Equity: prop2Market - prop2Mortgage, prop2LTV: prop2Market > 0 ? ((prop2Mortgage / prop2Market) * 100).toFixed(1) : "",
+        prop3Address: buildPropertyAddress(3), prop3MarketValue: prop3Market, prop3Mortgage: prop3Mortgage, prop3Equity: prop3Market - prop3Mortgage, prop3LTV: prop3Market > 0 ? ((prop3Mortgage / prop3Market) * 100).toFixed(1) : "",
+        documentsProvided: collectDocuments().join(", "), submissionDate: getValue("submissionDate"), borrowerNameSigned: getValue("borrowerNameSigned"), signatureImage: signatureImage
+      };
+    }
+
+    function submitForm() {
+      submitStatus.textContent = "";
+      submitStatus.classList.remove("success", "error");
+      retryBtn.classList.add("hidden");
+      var i;
+      for (i = 1; i <= totalSteps - 1; i++) {
+        if (!validateStep(i)) { showStep(i); submitStatus.textContent = "Please review the highlighted fields before submitting."; submitStatus.classList.add("error"); return; }
+      }
+      if (!signaturePad || signaturePad.isEmpty()) {
+        showStep(8);
+        document.getElementById("signatureError").textContent = "Please provide your signature.";
+        submitStatus.textContent = "Please complete the required signature before submitting.";
+        submitStatus.classList.add("error");
+        return;
+      }
+      var signatureImage = signaturePad.toDataURL("image/png");
+      var payload = buildPayload(signatureImage);
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+      submitStatus.textContent = "Submitting your application securely...";
+
+      fetch(APPS_SCRIPT_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+          if (result && result.result === "success") {
+            formCard.classList.add("hidden");
+            confirmationCard.classList.remove("hidden");
+            submitStatus.textContent = "";
+          } else throw new Error(result && result.message ? result.message : "Unknown error");
+        })
+        .catch(function(err) {
+          submitStatus.textContent = "There was a problem submitting your application. Please check your connection and try again.";
+          submitStatus.classList.add("error");
+          retryBtn.classList.remove("hidden");
+        })
+        .finally(function() {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Submit Application";
+        });
+    }
+
+    submitBtn.addEventListener("click", submitForm);
+    retryBtn.addEventListener("click", submitForm);
+  </script>
+</body>
+</html>
