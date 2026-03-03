@@ -94,7 +94,7 @@ So: keep `appscript.js` in this folder for code history; the *running* backend i
   ```
   Then open: `http://localhost:8000` (or `http://localhost:8000/index.html`).
 
-- **On the web:** Upload `index.html` (and only that file) to any static host (GitHub Pages, Netlify, S3, etc.). The form will POST to your Apps Script URL from the user’s browser.
+- **On the web:** Deploy this repo to **Vercel** (or GitHub Pages, Netlify, etc.); Vercel will serve `index.html` as the entry point. The form will POST to your Apps Script URL from the user’s browser.
 
 ### 4. Test a submission
 
