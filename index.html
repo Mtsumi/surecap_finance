@@ -1186,6 +1186,8 @@
       if (stepNum === totalSteps) { stepNav.classList.add("hidden"); updateSummary(); }
       else stepNav.classList.remove("hidden");
       prevBtn.disabled = stepNum === 1;
+      // Initialize signature pad when Step 8 becomes visible (canvas has correct width then)
+      if (stepNum === 8) { setTimeout(initSignaturePad, 50); }
       // Camera lifecycle — start when entering step 9, stop when leaving
       if (stepNum === 9 && !selfieUploaded) {
         startCamera();
@@ -1203,6 +1205,8 @@
     function initSignaturePad() {
       var canvas = document.getElementById("signatureCanvas");
       if (!canvas) return;
+      // Never wipe an existing signature — save data, resize, restore
+      var existingData = (signaturePad && !signaturePad.isEmpty()) ? signaturePad.toData() : null;
       var ratio = Math.max(window.devicePixelRatio || 1, 1);
       var parentWidth = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
       canvas.width = parentWidth * ratio;
@@ -1210,10 +1214,12 @@
       var ctx = canvas.getContext("2d");
       ctx.scale(ratio, ratio);
       signaturePad = new SignaturePad(canvas, { backgroundColor: "#FFFFFF", penColor: "#1B2A4A" });
+      if (existingData) signaturePad.fromData(existingData);
     }
 
-    window.addEventListener("load", function() { initSignaturePad(); recalcAll(); });
-    window.addEventListener("resize", function() { initSignaturePad(); });
+    window.addEventListener("load", function() { recalcAll(); });
+    // Only resize the pad when the canvas is actually visible (Step 8 is active)
+    window.addEventListener("resize", function() { if (currentStep === 8) initSignaturePad(); });
 
     document.getElementById("clearSignature").addEventListener("click", function() {
       if (signaturePad) { signaturePad.clear(); document.getElementById("signatureError").textContent = ""; }
