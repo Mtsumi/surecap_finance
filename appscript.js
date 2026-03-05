@@ -13,9 +13,9 @@
 // ─────────────────────────────────────────
 // CONFIGURE THESE BEFORE DEPLOYING
 // ─────────────────────────────────────────
-var LENDER_EMAIL = "your-email@gmail.com"; // the lender / admin who reviews applications
+var LENDER_EMAIL = "isafariapp@gmail.com"; // the lender / admin who reviews applications
 var COMPANY_NAME = "Surecap Finance";
-var REPLY_TO     = "no-reply@surecapfinance.com"; // shown as reply-to in emails (cosmetic)
+var REPLY_TO     = "isafariapp@gmail.com"; // shown as reply-to in emails (cosmetic)
 // ─────────────────────────────────────────
 
 function doPost(e) {
@@ -164,6 +164,49 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ result: "error", message: err.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ─────────────────────────────────────────
+// Manual test — run this from the Apps Script
+// editor (Run → testDoPost) to test without
+// the form. Check View → Logs for output.
+// ─────────────────────────────────────────
+function testDoPost() {
+  var fakeData = {
+    name: "Test User", address: "123 Test St, Montreal, QC H1A 1A1",
+    cellPhone: "514-555-0000", otherPhone: "", email: "test@example.com",
+    employerName: "Acme Corp", employerAddress: "456 Corp Ave",
+    yearsEmployed: "3", employmentType: "Permanent", compensationType: "Salary",
+    employerPhone: "514-555-0001", employerEmail: "hr@acme.com",
+    income1Source: "Salary", income1Amount: 5000,
+    income2Source: "", income2Amount: 0,
+    income3Source: "", income3Amount: 0,
+    investmentIncome: 200, totalGrossIncome: 5200,
+    housing: 1200, propertyTaxes: 200, condoFees: 0, insurance: 100,
+    heating: 80, alimony: 0, childSupport: 0, otherObligations: 0,
+    totalMonthlyObligations: 1580,
+    creditCards: 150, personalLoan: 0, autoLoan: 400, studentLoan: 200,
+    surecapLoanInterest: 0, totalDebtExpenses: 750, dti: "44.8",
+    stocksInvestments: 10000, prop1Value: 350000, prop2Value: 0, prop3Value: 0,
+    otherAssets: 5000, totalAssets: 365000,
+    ccDebt: 3000, lineOfCredit: 5000, personalLoansLiab: 0,
+    mortgage1: 280000, mortgage2: 0, mortgage3: 0,
+    totalDebt: 288000, netWorth: 77000,
+    prop1Address: "123 Test St, Montreal, QC", prop1MarketValue: 350000,
+    prop1Mortgage: 280000, prop1Equity: 70000, prop1LTV: "80.0",
+    prop2Address: "", prop2MarketValue: 0, prop2Mortgage: 0, prop2Equity: 0, prop2LTV: "",
+    prop3Address: "", prop3MarketValue: 0, prop3Mortgage: 0, prop3Equity: 0, prop3LTV: "",
+    documentsProvided: "Pay stubs / proof of income, Credit report",
+    submissionDate: "2026-03-03", borrowerNameSigned: "Test User",
+    signatureImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+  };
+
+  var fakeEvent = {
+    postData: { contents: JSON.stringify(fakeData) }
+  };
+
+  var result = doPost(fakeEvent);
+  Logger.log("Result: " + result.getContent());
 }
 
 // ─────────────────────────────────────────
