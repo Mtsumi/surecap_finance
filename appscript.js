@@ -167,6 +167,73 @@ function doPost(e) {
 }
 
 // ─────────────────────────────────────────
+// One-time setup — run this ONCE from the Apps Script
+// editor (Run → setupHeaders) to add column headers,
+// freeze row 1, and bold the header row.
+// Safe to re-run: it always overwrites row 1.
+// ─────────────────────────────────────────
+function setupHeaders() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  var headers = [
+    "Timestamp",
+    // Section 1 — Borrower Information
+    "Full Name", "Address", "Cell Phone", "Other Phone", "Email",
+    "Employer Name", "Employer Address", "Years with Employer",
+    "Employment Type", "Compensation Type", "Employer Phone", "Employer Email",
+    // Section 2 — Income
+    "Income 1 Source", "Income 1 Amount ($)",
+    "Income 2 Source", "Income 2 Amount ($)",
+    "Income 3 Source", "Income 3 Amount ($)",
+    "Investment Income ($)", "Total Gross Monthly Income ($)",
+    // Section 3 — Monthly Obligations
+    "Housing ($)", "Property Taxes ($)", "Condo Fees ($)", "Insurance ($)",
+    "Heating ($)", "Alimony ($)", "Child Support / Alimony ($)", "Other Obligations ($)",
+    "Total Monthly Obligations ($)",
+    // Section 4 — Debt Payments
+    "Credit Cards Min Payment ($)", "Personal Loan ($)", "Auto Loan ($)",
+    "Student Loan ($)", "SureCap Loan Interest ($)",
+    "Total Debt Expenses ($)", "DTI (%)",
+    // Section 5 — Assets
+    "Stocks & Investments ($)", "Property 1 Value ($)", "Property 2 Value ($)", "Property 3 Value ($)",
+    "Other Assets ($)", "Total Assets ($)",
+    // Section 6 — Liabilities
+    "Credit Card Debt ($)", "Line of Credit ($)", "Personal Loans ($)",
+    "Mortgage Property 1 ($)", "Mortgage Property 2 ($)", "Mortgage Property 3 ($)",
+    "Total Debt ($)", "Net Worth ($)",
+    // Section 7 — Property Details
+    "Property 1 Address", "Prop 1 Market Value ($)", "Prop 1 Mortgage ($)", "Prop 1 Equity ($)", "Prop 1 LTV (%)",
+    "Property 2 Address", "Prop 2 Market Value ($)", "Prop 2 Mortgage ($)", "Prop 2 Equity ($)", "Prop 2 LTV (%)",
+    "Property 3 Address", "Prop 3 Market Value ($)", "Prop 3 Mortgage ($)", "Prop 3 Equity ($)", "Prop 3 LTV (%)",
+    // Section 8 — Documents & Signature
+    "Documents Provided",
+    "Submission Date", "Borrower Name (Signed)", "Signature Image (base64)"
+  ];
+
+  // Write headers to row 1
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+  // Bold and freeze row 1
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
+  sheet.setFrozenRows(1);
+
+  // Set background colour on header row
+  sheet.getRange(1, 1, 1, headers.length).setBackground("#1B2A4A");
+  sheet.getRange(1, 1, 1, headers.length).setFontColor("#FFFFFF");
+
+  // Narrow the signature column (last column) — base64 is huge
+  var sigColIndex = headers.length;
+  sheet.setColumnWidth(sigColIndex, 120);
+
+  // Auto-resize all other columns to fit content
+  for (var i = 1; i < sigColIndex; i++) {
+    sheet.autoResizeColumn(i);
+  }
+
+  Logger.log("Headers set. Total columns: " + headers.length);
+}
+
+// ─────────────────────────────────────────
 // Manual test — run this from the Apps Script
 // editor (Run → testDoPost) to test without
 // the form. Check View → Logs for output.
