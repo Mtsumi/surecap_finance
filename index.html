@@ -946,7 +946,10 @@
       submitBtn.textContent = "Submitting...";
       submitStatus.textContent = "Submitting your application securely...";
 
-      fetch(APPS_SCRIPT_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+      // Apps Script Web Apps reject CORS preflight requests.
+      // Using Content-Type: text/plain avoids the preflight while
+      // e.postData.contents on the server side still contains the JSON.
+      fetch(APPS_SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) })
         .then(function(response) { return response.json(); })
         .then(function(result) {
           if (result && result.result === "success") {
