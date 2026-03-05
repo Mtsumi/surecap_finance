@@ -314,6 +314,115 @@
     .confirmation { text-align: center; padding: 40px 16px; }
     .confirmation h2 { color: var(--navy); margin-bottom: 8px; }
     .confirmation p { color: #4b5268; margin: 6px 0; }
+
+    /* ── Document upload rows ── */
+    .doc-upload-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+    .doc-upload-row {
+      border-radius: 6px;
+      border: 1px solid #e0e3f0;
+      background: #fafbff;
+      padding: 12px 14px;
+      transition: border-color 0.15s ease;
+    }
+
+    .doc-upload-row.has-file { border-color: rgba(27, 74, 42, 0.35); background: #f4fbf6; }
+
+    .doc-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .doc-check-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #31374a;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .doc-check-label input[type="checkbox"] { min-width: 18px; min-height: 18px; flex-shrink: 0; }
+
+    .file-pick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px dashed var(--gold);
+      background: transparent;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      min-height: 36px;
+      white-space: nowrap;
+      transition: background 0.15s ease;
+    }
+
+    .file-pick-btn:hover { background: rgba(201, 168, 76, 0.08); }
+    .file-input-hidden { display: none; }
+
+    .doc-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .doc-status-row.hidden { display: none; }
+
+    .uploaded-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e2f5e8;
+      border-radius: 4px;
+      padding: 4px 8px;
+      color: #1b7b3a;
+      max-width: 260px;
+      overflow: hidden;
+    }
+
+    .uploaded-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .remove-file-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #7b8198;
+      font-size: 15px;
+      padding: 0 2px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .upload-msg { color: #7b8198; }
+    .upload-msg.uploading { color: #3a5fa0; }
+    .upload-msg.error-msg { color: #c0392b; }
+
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid #cfd3e6;
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .doc-size-note { font-size: 11px; color: #9aa0b8; margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -581,18 +690,122 @@
 
           <section class="form-step" data-step="8">
             <h2 class="section-title">Documents &amp; Signature</h2>
-            <p class="section-description">Check documents you will provide and sign.</p>
+            <p class="section-description">
+              Upload each document using the button on its row. The checkbox ticks automatically when a file is uploaded.
+              Files are saved to Google Drive immediately — not on submit.
+            </p>
+
             <div class="form-field">
               <label>Documents Checklist</label>
-              <div class="checkbox-list">
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Utilities" /><span>Utilities</span></label>
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Pay stubs / proof of income" /><span>Pay stubs / proof of income</span></label>
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Government assessments (3 years)" /><span>Government assessments (3 years)</span></label>
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Municipal tax bills" /><span>Municipal tax bills</span></label>
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Condo fees" /><span>Condo fees</span></label>
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Other loan contracts and interest statements" /><span>Other loan contracts and interest statements</span></label>
-                <label class="checkbox-item"><input type="checkbox" name="documents" value="Credit report" /><span>Credit report</span></label>
+              <div class="doc-upload-list" id="docUploadList">
+
+                <!-- utilities -->
+                <div class="doc-upload-row" id="row-utilities">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-utilities" />
+                      <span>Utilities</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-utilities">
+                      &#128206; Choose file
+                      <input type="file" id="file-utilities" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="utilities" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-utilities"></div>
+                </div>
+
+                <!-- pay_stubs -->
+                <div class="doc-upload-row" id="row-pay_stubs">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-pay_stubs" />
+                      <span>Pay stubs / proof of income</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-pay_stubs">
+                      &#128206; Choose file
+                      <input type="file" id="file-pay_stubs" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="pay_stubs" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-pay_stubs"></div>
+                </div>
+
+                <!-- gov_assessments -->
+                <div class="doc-upload-row" id="row-gov_assessments">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-gov_assessments" />
+                      <span>Government assessments (3 years)</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-gov_assessments">
+                      &#128206; Choose file
+                      <input type="file" id="file-gov_assessments" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="gov_assessments" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-gov_assessments"></div>
+                </div>
+
+                <!-- tax_bills -->
+                <div class="doc-upload-row" id="row-tax_bills">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-tax_bills" />
+                      <span>Municipal tax bills</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-tax_bills">
+                      &#128206; Choose file
+                      <input type="file" id="file-tax_bills" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="tax_bills" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-tax_bills"></div>
+                </div>
+
+                <!-- condo_fees -->
+                <div class="doc-upload-row" id="row-condo_fees">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-condo_fees" />
+                      <span>Condo fees</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-condo_fees">
+                      &#128206; Choose file
+                      <input type="file" id="file-condo_fees" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="condo_fees" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-condo_fees"></div>
+                </div>
+
+                <!-- loan_contracts -->
+                <div class="doc-upload-row" id="row-loan_contracts">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-loan_contracts" />
+                      <span>Other loan contracts and interest statements</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-loan_contracts">
+                      &#128206; Choose file
+                      <input type="file" id="file-loan_contracts" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="loan_contracts" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-loan_contracts"></div>
+                </div>
+
+                <!-- credit_report -->
+                <div class="doc-upload-row" id="row-credit_report">
+                  <div class="doc-top-row">
+                    <div class="doc-check-label">
+                      <input type="checkbox" id="chk-credit_report" />
+                      <span>Credit report</span>
+                    </div>
+                    <label class="file-pick-btn" for="file-credit_report">
+                      &#128206; Choose file
+                      <input type="file" id="file-credit_report" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="credit_report" />
+                    </label>
+                  </div>
+                  <div class="doc-status-row hidden" id="status-credit_report"></div>
+                </div>
+
               </div>
+              <div class="doc-size-note">Accepted: PDF, JPG, PNG — max 10 MB per file. Files are uploaded to Google Drive immediately.</div>
               <small class="error-message"></small>
             </div>
             <div class="form-grid two-col" style="margin-top:8px;">
@@ -867,9 +1080,122 @@
     var formCard = document.getElementById("formCard");
     var confirmationCard = document.getElementById("confirmationCard");
 
-    function collectDocuments() {
-      return Array.from(document.querySelectorAll("input[name='documents']:checked")).map(function(c) { return c.value; });
+    // ── Document upload state ──────────────────────────────
+    var driveFolderId   = null;
+    var driveFolderLink = null;
+    var docLinks        = {};   // { utilities: "https://...", pay_stubs: "https://...", ... }
+    var MAX_FILE_BYTES  = 10 * 1024 * 1024; // 10 MB
+
+    var DOC_TYPES = [
+      "utilities", "pay_stubs", "gov_assessments",
+      "tax_bills", "condo_fees", "loan_contracts", "credit_report"
+    ];
+
+    function setUploadStatus(docType, state, message) {
+      var statusEl = document.getElementById("status-" + docType);
+      var rowEl    = document.getElementById("row-" + docType);
+      if (!statusEl) return;
+      statusEl.innerHTML = "";
+      statusEl.classList.remove("hidden");
+
+      if (state === "uploading") {
+        statusEl.innerHTML = '<span class="spinner"></span><span class="upload-msg uploading">' + message + '</span>';
+        rowEl.classList.remove("has-file");
+      } else if (state === "success") {
+        var chip = document.createElement("div");
+        chip.className = "uploaded-chip";
+        chip.innerHTML = '<span>&#10003; ' + message + '</span>';
+        var removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "remove-file-btn";
+        removeBtn.title = "Remove file";
+        removeBtn.textContent = "\u00D7";
+        removeBtn.setAttribute("data-doc", docType);
+        chip.appendChild(removeBtn);
+        statusEl.appendChild(chip);
+        rowEl.classList.add("has-file");
+        document.getElementById("chk-" + docType).checked = true;
+        removeBtn.addEventListener("click", function() { removeDocument(docType); });
+      } else if (state === "error") {
+        var errSpan = document.createElement("span");
+        errSpan.className = "upload-msg error-msg";
+        errSpan.textContent = message;
+        statusEl.appendChild(errSpan);
+        rowEl.classList.remove("has-file");
+      } else {
+        statusEl.classList.add("hidden");
+        rowEl.classList.remove("has-file");
+      }
     }
+
+    function removeDocument(docType) {
+      delete docLinks[docType];
+      document.getElementById("chk-" + docType).checked = false;
+      document.getElementById("file-" + docType).value = "";
+      setUploadStatus(docType, "idle");
+    }
+
+    function uploadDocument(docType, file) {
+      if (file.size > MAX_FILE_BYTES) {
+        setUploadStatus(docType, "error", "File too large — max 10 MB.");
+        return;
+      }
+
+      setUploadStatus(docType, "uploading", "Uploading to Drive…");
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var base64 = e.target.result.split(",")[1];
+        var payload = {
+          type: "upload",
+          docType: docType,
+          fileName: file.name,
+          mimeType: file.type || "application/octet-stream",
+          base64Data: base64,
+          applicantName: getValue("name") || "Unknown Applicant",
+          submissionDate: new Date().toISOString().split("T")[0]
+        };
+        if (driveFolderId) payload.folderId = driveFolderId;
+
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+          if (result.result === "success") {
+            if (result.folderId)   driveFolderId   = result.folderId;
+            if (result.folderLink) driveFolderLink = result.folderLink;
+            docLinks[docType] = result.fileLink;
+            setUploadStatus(docType, "success", file.name);
+          } else {
+            throw new Error(result.message || "Upload failed");
+          }
+        })
+        .catch(function(err) {
+          setUploadStatus(docType, "error", "Upload failed. Please try again.");
+          document.getElementById("file-" + docType).value = "";
+        });
+      };
+      reader.onerror = function() {
+        setUploadStatus(docType, "error", "Could not read file.");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Wire up file inputs
+    DOC_TYPES.forEach(function(docType) {
+      var fileInput = document.getElementById("file-" + docType);
+      if (fileInput) {
+        fileInput.addEventListener("change", function() {
+          if (fileInput.files && fileInput.files[0]) {
+            uploadDocument(docType, fileInput.files[0]);
+          }
+        });
+      }
+    });
+    // ── End document upload ────────────────────────────────
 
     function buildPropertyAddress(idx) {
       var parts = [];
@@ -921,7 +1247,9 @@
         prop1Address: buildPropertyAddress(1), prop1MarketValue: prop1Market, prop1Mortgage: prop1Mortgage, prop1Equity: prop1Market - prop1Mortgage, prop1LTV: prop1Market > 0 ? ((prop1Mortgage / prop1Market) * 100).toFixed(1) : "",
         prop2Address: buildPropertyAddress(2), prop2MarketValue: prop2Market, prop2Mortgage: prop2Mortgage, prop2Equity: prop2Market - prop2Mortgage, prop2LTV: prop2Market > 0 ? ((prop2Mortgage / prop2Market) * 100).toFixed(1) : "",
         prop3Address: buildPropertyAddress(3), prop3MarketValue: prop3Market, prop3Mortgage: prop3Mortgage, prop3Equity: prop3Market - prop3Mortgage, prop3LTV: prop3Market > 0 ? ((prop3Mortgage / prop3Market) * 100).toFixed(1) : "",
-        documentsProvided: collectDocuments().join(", "), submissionDate: getValue("submissionDate"), borrowerNameSigned: getValue("borrowerNameSigned"), signatureImage: signatureImage
+        docLinks: docLinks,
+        folderLink: driveFolderLink || "",
+        submissionDate: getValue("submissionDate"), borrowerNameSigned: getValue("borrowerNameSigned"), signatureImage: signatureImage
       };
     }
 
