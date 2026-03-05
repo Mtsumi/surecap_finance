@@ -13,9 +13,9 @@
 // ─────────────────────────────────────────
 // CONFIGURE THESE BEFORE DEPLOYING
 // ─────────────────────────────────────────
-var LENDER_EMAIL = "isafariapp@gmail.com"; // the lender / admin who reviews applications
+var LENDER_EMAIL = "CLIENT_EMAIL_HERE"; // the lender / admin who reviews applications
 var COMPANY_NAME = "Surecap Finance";
-var REPLY_TO     = "isafariapp@gmail.com"; // shown as reply-to in emails (cosmetic)
+var REPLY_TO     = "CLIENT_EMAIL_HERE"; // shown as reply-to in emails (cosmetic)
 // ─────────────────────────────────────────
 
 function doPost(e) {
