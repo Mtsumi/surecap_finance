@@ -423,6 +423,106 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .doc-size-note { font-size: 11px; color: #9aa0b8; margin-top: 6px; }
+
+    /* ── Selfie / identity capture ── */
+    .selfie-container {
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0d1526;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .camera-view { position: relative; display: flex; flex-direction: column; align-items: stretch; }
+
+    .camera-feed {
+      width: 100%;
+      max-height: 340px;
+      object-fit: cover;
+      display: block;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .face-guide-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      max-height: 340px;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .face-oval {
+      width: 140px;
+      height: 185px;
+      border: 2px dashed rgba(201, 168, 76, 0.65);
+      border-radius: 50%;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+    }
+
+    .capture-btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background: #0d1526;
+      gap: 10px;
+    }
+
+    .capture-btn {
+      flex: 1;
+      max-width: 280px;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+    }
+
+    .capture-btn:hover { background: #d4b15e; }
+
+    .selfie-preview-wrap { position: relative; }
+
+    .selfie-preview {
+      width: 100%;
+      max-height: 340px;
+      object-fit: cover;
+      display: block;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .selfie-action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #0d1526;
+      gap: 10px;
+    }
+
+    .selfie-status { font-size: 13px; font-weight: 500; }
+    .selfie-status.uploading { color: #a0b4d6; }
+    .selfie-status.success    { color: #5dbb7c; }
+    .selfie-status.upload-error { color: #e07070; }
+
+    .camera-error-box {
+      padding: 36px 20px;
+      text-align: center;
+      color: #8090aa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .camera-error-box p { margin: 0; font-size: 14px; }
+
+    .consent-note {
+      font-size: 11px;
+      color: #9aa0b8;
+      font-style: italic;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -833,7 +933,50 @@
             </div>
           </section>
 
+          <!-- ── Step 9 · Identity Verification ── -->
           <section class="form-step" data-step="9">
+            <h2 class="section-title">Identity Verification</h2>
+            <p class="section-description">
+              Please take a quick selfie so we can confirm you are the person submitting this application.
+              Position your face inside the oval and press <strong>Take Photo</strong>.
+            </p>
+
+            <div class="selfie-container">
+
+              <!-- camera live view -->
+              <div class="camera-view" id="cameraView">
+                <video id="cameraFeed" class="camera-feed" autoplay playsinline muted></video>
+                <div class="face-guide-overlay"><div class="face-oval"></div></div>
+                <div class="capture-btn-row">
+                  <button type="button" id="captureBtn" class="btn capture-btn">&#128247; Take Photo</button>
+                </div>
+              </div>
+
+              <!-- captured photo view -->
+              <div class="selfie-preview-wrap hidden" id="capturedView">
+                <canvas id="selfieCanvas" class="selfie-preview"></canvas>
+                <div class="selfie-action-bar">
+                  <button type="button" id="retakeBtn" class="btn btn-outline" style="flex:0 0 auto;">&#8617; Retake</button>
+                  <span class="selfie-status" id="selfieStatus"></span>
+                </div>
+              </div>
+
+              <!-- camera not available -->
+              <div class="camera-error-box hidden" id="cameraErrorBox">
+                <p>Camera access was denied or unavailable.<br>Please allow camera access and try again.</p>
+                <button type="button" id="retryCameraBtn" class="btn btn-outline">Try Again</button>
+              </div>
+
+            </div>
+
+            <p class="consent-note">
+              By capturing and submitting this photo you consent to Surecap Finance using it solely for identity verification purposes.
+            </p>
+            <small class="error-message" id="selfieError"></small>
+          </section>
+
+          <!-- ── Step 10 · Review & Submit ── -->
+          <section class="form-step" data-step="10">
             <h2 class="section-title">Review &amp; Submit</h2>
             <p class="section-description">Review and submit your application to Surecap Finance.</p>
             <div class="summary-box">
@@ -1005,6 +1148,14 @@
         document.getElementById("signatureError").textContent = "";
         if (signaturePad && signaturePad.isEmpty()) { document.getElementById("signatureError").textContent = "Please provide your signature."; valid = false; }
       }
+      if (stepNum === 9) {
+        var selfieErrEl = document.getElementById("selfieError");
+        selfieErrEl.textContent = "";
+        if (!selfieUploaded) {
+          selfieErrEl.textContent = "Please take a photo before proceeding.";
+          valid = false;
+        }
+      }
       return valid;
     }
 
@@ -1035,6 +1186,12 @@
       if (stepNum === totalSteps) { stepNav.classList.add("hidden"); updateSummary(); }
       else stepNav.classList.remove("hidden");
       prevBtn.disabled = stepNum === 1;
+      // Camera lifecycle — start when entering step 9, stop when leaving
+      if (stepNum === 9 && !selfieUploaded) {
+        startCamera();
+      } else if (stepNum !== 9) {
+        stopCamera();
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -1248,6 +1405,7 @@
         prop2Address: buildPropertyAddress(2), prop2MarketValue: prop2Market, prop2Mortgage: prop2Mortgage, prop2Equity: prop2Market - prop2Mortgage, prop2LTV: prop2Market > 0 ? ((prop2Mortgage / prop2Market) * 100).toFixed(1) : "",
         prop3Address: buildPropertyAddress(3), prop3MarketValue: prop3Market, prop3Mortgage: prop3Mortgage, prop3Equity: prop3Market - prop3Mortgage, prop3LTV: prop3Market > 0 ? ((prop3Mortgage / prop3Market) * 100).toFixed(1) : "",
         docLinks: docLinks,
+        selfieLink: docLinks["selfie"] || "",
         folderLink: driveFolderLink || "",
         submissionDate: getValue("submissionDate"), borrowerNameSigned: getValue("borrowerNameSigned"), signatureImage: signatureImage
       };
@@ -1299,6 +1457,116 @@
 
     submitBtn.addEventListener("click", submitForm);
     retryBtn.addEventListener("click", submitForm);
+
+    // ── Selfie / identity capture ──────────────────────────
+    var cameraStream   = null;
+    var selfieUploaded = false;
+
+    function startCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showCameraError(); return;
+      }
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false
+      })
+      .then(function(stream) {
+        cameraStream = stream;
+        var video = document.getElementById("cameraFeed");
+        video.srcObject = stream;
+        document.getElementById("cameraView").classList.remove("hidden");
+        document.getElementById("cameraErrorBox").classList.add("hidden");
+      })
+      .catch(function() { showCameraError(); });
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(function(t) { t.stop(); });
+        cameraStream = null;
+        var video = document.getElementById("cameraFeed");
+        if (video) video.srcObject = null;
+      }
+    }
+
+    function showCameraError() {
+      document.getElementById("cameraView").classList.add("hidden");
+      document.getElementById("cameraErrorBox").classList.remove("hidden");
+    }
+
+    function capturePhoto() {
+      var video  = document.getElementById("cameraFeed");
+      var canvas = document.getElementById("selfieCanvas");
+      canvas.width  = video.videoWidth  || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+      stopCamera();
+
+      document.getElementById("cameraView").classList.add("hidden");
+      document.getElementById("capturedView").classList.remove("hidden");
+      uploadSelfie(canvas.toDataURL("image/jpeg", 0.85));
+    }
+
+    function uploadSelfie(dataUrl) {
+      var statusEl = document.getElementById("selfieStatus");
+      var errEl    = document.getElementById("selfieError");
+      selfieUploaded = false;
+      statusEl.textContent = "⏳ Uploading to Drive…";
+      statusEl.className   = "selfie-status uploading";
+      errEl.textContent    = "";
+
+      var payload = {
+        type:          "upload",
+        docType:       "selfie",
+        fileName:      "selfie.jpg",
+        mimeType:      "image/jpeg",
+        base64Data:    dataUrl.split(",")[1],
+        applicantName: getValue("name") || "Unknown Applicant",
+        submissionDate: new Date().toISOString().split("T")[0]
+      };
+      if (driveFolderId) payload.folderId = driveFolderId;
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(result) {
+        if (result.result === "success") {
+          if (result.folderId)   driveFolderId   = result.folderId;
+          if (result.folderLink) driveFolderLink = result.folderLink;
+          docLinks["selfie"] = result.fileLink;
+          selfieUploaded = true;
+          statusEl.textContent = "✅ Photo saved";
+          statusEl.className   = "selfie-status success";
+        } else throw new Error(result.message || "Upload failed");
+      })
+      .catch(function() {
+        selfieUploaded = false;
+        statusEl.textContent = "❌ Upload failed — please retake";
+        statusEl.className   = "selfie-status upload-error";
+      });
+    }
+
+    function retakePhoto() {
+      selfieUploaded = false;
+      delete docLinks["selfie"];
+      document.getElementById("selfieStatus").textContent = "";
+      document.getElementById("selfieStatus").className  = "selfie-status";
+      document.getElementById("selfieError").textContent  = "";
+      document.getElementById("capturedView").classList.add("hidden");
+      document.getElementById("cameraView").classList.remove("hidden");
+      startCamera();
+    }
+
+    document.getElementById("captureBtn").addEventListener("click", capturePhoto);
+    document.getElementById("retakeBtn").addEventListener("click", retakePhoto);
+    document.getElementById("retryCameraBtn").addEventListener("click", function() {
+      document.getElementById("cameraErrorBox").classList.add("hidden");
+      startCamera();
+    });
+    // ── End selfie ─────────────────────────────────────────
   </script>
 </body>
 </html>

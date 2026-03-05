@@ -101,7 +101,7 @@ function handleFormSubmit(data) {
       data.prop1Address, data.prop1MarketValue, data.prop1Mortgage, data.prop1Equity, data.prop1LTV,
       data.prop2Address, data.prop2MarketValue, data.prop2Mortgage, data.prop2Equity, data.prop2LTV,
       data.prop3Address, data.prop3MarketValue, data.prop3Mortgage, data.prop3Equity, data.prop3LTV,
-      // Section 8 — one column per doc type + Drive folder link
+      // Section 8 — one column per doc type + selfie + Drive folder link
       dl.utilities        || "—",
       dl.pay_stubs        || "—",
       dl.gov_assessments  || "—",
@@ -109,13 +109,14 @@ function handleFormSubmit(data) {
       dl.condo_fees       || "—",
       dl.loan_contracts   || "—",
       dl.credit_report    || "—",
+      data.selfieLink     || "—",
       data.folderLink     || "—",
       // Signature
       data.submissionDate, data.borrowerNameSigned, data.signatureImage
     ];
 
-    // Sanity check — should always be 77. If not, headers/row are out of sync.
-    Logger.log("Row length: " + row.length + " (expected 77)");
+    // Sanity check — should always be 78. If not, headers/row are out of sync.
+    Logger.log("Row length: " + row.length + " (expected 78)");
 
     sheet.appendRow(row);
 
@@ -150,6 +151,7 @@ function handleFormSubmit(data) {
       "═══════════════════════════════",
       "  UPLOADED DOCUMENTS", "═══════════════════════════════",
       uploadedDocs,
+      data.selfieLink ? "  • selfie: " + data.selfieLink : "",
       data.folderLink ? "\nDrive Folder: " + data.folderLink : "", "",
       "Full data is in your Google Sheet.",
     ].join("\n");
@@ -221,6 +223,7 @@ function setupHeaders() {
     "Doc: Condo Fees (Link)",
     "Doc: Loan Contracts (Link)",
     "Doc: Credit Report (Link)",
+    "Identity Selfie (Link)",
     "Drive Folder (Link)",
     // Signature
     "Submission Date", "Borrower Name (Signed)", "Signature Image (base64)"
@@ -265,6 +268,7 @@ function testDoPost() {
     prop2Address: "", prop2MarketValue: 0, prop2Mortgage: 0, prop2Equity: 0, prop2LTV: "",
     prop3Address: "", prop3MarketValue: 0, prop3Mortgage: 0, prop3Equity: 0, prop3LTV: "",
     docLinks: { pay_stubs: "https://drive.google.com/file/d/TESTID/view", credit_report: "https://drive.google.com/file/d/TESTID2/view" },
+    selfieLink: "https://drive.google.com/file/d/TESTSELFIEID/view",
     folderLink: "https://drive.google.com/drive/folders/TESTFOLDERID",
     submissionDate: "2026-03-05", borrowerNameSigned: "Test User",
     signatureImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
