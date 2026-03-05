@@ -12,9 +12,9 @@
 // ─────────────────────────────────────────
 // CONFIGURE THESE BEFORE DEPLOYING
 // ─────────────────────────────────────────
-var LENDER_EMAIL  = "CLIENT_EMAIL_HERE";
+var LENDER_EMAIL  = "isafariapp@gmail.com";
 var COMPANY_NAME  = "Surecap Finance";
-var REPLY_TO      = "CLIENT_EMAIL_HERE";
+var REPLY_TO      = "isafariapp@gmail.com";
 var DRIVE_ROOT    = "Surecap Applications"; // top-level Drive folder name
 // ─────────────────────────────────────────
 
@@ -113,6 +113,9 @@ function handleFormSubmit(data) {
       // Signature
       data.submissionDate, data.borrowerNameSigned, data.signatureImage
     ];
+
+    // Sanity check — should always be 77. If not, headers/row are out of sync.
+    Logger.log("Row length: " + row.length + " (expected 77)");
 
     sheet.appendRow(row);
 
