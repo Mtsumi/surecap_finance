@@ -219,10 +219,6 @@ function handleFormSubmit(data) {
         "Thank you for submitting your loan application to " + COMPANY_NAME + ".",
         "Please find your completed application form attached to this email for your records.", "",
         "Our team will review your information and contact you shortly.", "",
-        "  Submission date            : " + data.submissionDate,
-        "  Total gross monthly income : $" + fmt(data.totalGrossIncome),
-        "  Debt-to-income ratio       : " + data.dti + "%",
-        "  Net worth                  : $" + fmt(data.netWorth), "",
         "Sincerely,",
         COMPANY_NAME + " Team"
       ].join("\n");
