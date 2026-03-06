@@ -18,7 +18,7 @@ var REPLY_TO      = "isafariapp@gmail.com";
 var DRIVE_ROOT    = "Surecap Applications"; // top-level Drive folder name
 
 
-var LOGO_FILE_ID  = "https://drive.google.com/file/d/1XQaUeDdRfLhkYIAhi9BFkddSLwO9Y7_k/view?usp=sharing";  // e.g. "1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
+var LOGO_FILE_ID  = "https://drive.google.com/file/d/1XQaUeDdRfLhkYIAhi9BFkddSLwO9Y7_k/view";  // e.g. "1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
 // ─────────────────────────────────────────
 
 // ── Router ──────────────────────────────────────────────────────────────────
@@ -259,7 +259,9 @@ function buildApplicationDoc(data) {
   // ── Logo ──────────────────────────────────────────────────────────────────
   if (LOGO_FILE_ID) {
     try {
-      var logoBlob = DriveApp.getFileById(LOGO_FILE_ID).getBlob();
+      // Accept either a bare file ID or a full Drive URL
+      var logoId = fileIdFromLink(LOGO_FILE_ID) || LOGO_FILE_ID;
+      var logoBlob = DriveApp.getFileById(logoId).getBlob();
       body.appendImage(logoBlob).setWidth(170);
       body.appendParagraph("");
     } catch (logoErr) { Logger.log("Logo not loaded: " + logoErr); }
