@@ -528,6 +528,20 @@ function setupHeaders() {
   Logger.log("Headers set. Total columns: " + headers.length);
 }
 
+// ── One-time authorization (run once from editor after adding DocumentApp) ───
+// Run this function ONCE from the Apps Script editor whenever new Google
+// services are added. It will trigger a re-authorization prompt so the
+// Web App deployment has the correct OAuth scopes.
+function authorizeAll() {
+  // Touch every service this script uses so they all appear in the consent screen
+  SpreadsheetApp.getActiveSpreadsheet();
+  DriveApp.getRootFolder();
+  MailApp.getRemainingDailyQuota();
+  var tempDoc = DocumentApp.create("_surecap_auth_check");
+  DriveApp.getFileById(tempDoc.getId()).setTrashed(true); // clean up immediately
+  Logger.log("All services authorized successfully. You can now redeploy the Web App.");
+}
+
 // ── Test (run from editor) ───────────────────────────────────────────────────
 function testDoPost() {
   var fakeData = {
