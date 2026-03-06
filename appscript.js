@@ -17,9 +17,8 @@ var COMPANY_NAME  = "Surecap Finance";
 var REPLY_TO      = "isafariapp@gmail.com";
 var DRIVE_ROOT    = "Surecap Applications"; // top-level Drive folder name
 
-// Upload "Surecap logo EN.png" to Google Drive, open it, copy the ID from
-// the URL (drive.google.com/file/d/THIS_PART/view) and paste it below.
-var LOGO_FILE_ID  = "";  // e.g. "1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
+
+var LOGO_FILE_ID  = "https://drive.google.com/file/d/1XQaUeDdRfLhkYIAhi9BFkddSLwO9Y7_k/view?usp=sharing";  // e.g. "1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
 // ─────────────────────────────────────────
 
 // ── Router ──────────────────────────────────────────────────────────────────
@@ -119,8 +118,9 @@ function handleFormSubmit(data) {
     sheet.appendRow(row);
 
     // ── Build PDF (non-blocking — data is already saved if this fails) ──────
-    var pdfBlob       = null;
+    var pdfBlob        = null;
     var docAttachments = [];
+    var pdfErrorMsg    = null;
 
     try {
       var appDoc = buildApplicationDoc(data);
@@ -157,7 +157,8 @@ function handleFormSubmit(data) {
       });
 
     } catch (pdfErr) {
-      Logger.log("PDF generation failed (submission still saved): " + pdfErr.toString());
+      pdfErrorMsg = pdfErr.toString();
+      Logger.log("PDF generation failed (submission still saved): " + pdfErrorMsg);
     }
 
     var allAttachments = pdfBlob ? [pdfBlob].concat(docAttachments) : docAttachments;
@@ -175,7 +176,7 @@ function handleFormSubmit(data) {
 
     var lenderBody = [
       "New application received on " + new Date().toLocaleString(),
-      pdfBlob ? "Full application PDF is attached." : "⚠️ PDF generation failed — see Google Sheet for full data.", "",
+      pdfBlob ? "Full application PDF is attached." : ("⚠️ PDF generation failed — see Google Sheet for full data.\n   Error: " + pdfErrorMsg), "",
       "═══════════════════════════════",
       "  APPLICANT", "═══════════════════════════════",
       "Name   : " + data.name,
@@ -250,7 +251,10 @@ function buildApplicationDoc(data) {
   var doc      = DocumentApp.create(docTitle);
   var body     = doc.getBody();
 
-  body.setMarginTop(36).setMarginBottom(36).setMarginLeft(54).setMarginRight(54);
+  body.setMarginTop(36);
+  body.setMarginBottom(36);
+  body.setMarginLeft(54);
+  body.setMarginRight(54);
 
   // ── Logo ──────────────────────────────────────────────────────────────────
   if (LOGO_FILE_ID) {
