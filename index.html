@@ -908,29 +908,6 @@
               <div class="doc-size-note">Accepted: PDF, JPG, PNG — max 10 MB per file. Files are uploaded to Google Drive immediately.</div>
               <small class="error-message"></small>
             </div>
-            <div class="form-grid two-col" style="margin-top:8px;">
-              <div class="form-field">
-                <label for="submissionDate">Date<span class="required">*</span></label>
-                <input id="submissionDate" name="submissionDate" type="date" data-required="true" />
-                <small class="error-message"></small>
-              </div>
-              <div class="form-field">
-                <label for="borrowerNameSigned">Borrower Name (printed)<span class="required">*</span></label>
-                <input id="borrowerNameSigned" name="borrowerNameSigned" type="text" data-required="true" />
-                <small class="error-message"></small>
-              </div>
-            </div>
-            <div class="form-field" style="margin-top:10px;">
-              <label>Borrower Signature<span class="required">*</span></label>
-              <div class="signature-wrapper">
-                <canvas id="signatureCanvas"></canvas>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-                  <span class="inline-note">Use your finger or mouse to sign.</span>
-                  <button type="button" id="clearSignature" class="btn-ghost">Clear</button>
-                </div>
-              </div>
-              <small class="error-message" id="signatureError"></small>
-            </div>
           </section>
 
           <!-- ── Step 9 · Identity Verification ── -->
@@ -1005,13 +982,25 @@
     <div id="confirmationCard" class="card confirmation hidden">
       <h2>Thank you for your application.</h2>
       <p>Your Surecap Finance credit application has been securely submitted.</p>
+      <p class="fallback-warning" style="display:none;"></p>
       <p>Our team will review your information and contact you shortly.</p>
+    </div>
+
+    <div id="signingCard" class="card hidden">
+      <h2>Almost done — please sign your loan agreement</h2>
+      <p>Review the document below and add your signature to complete your application.</p>
+      <div id="docuseal-container"></div>
+    </div>
+
+    <div id="signedCard" class="card hidden">
+      <h2>Application Complete ✓</h2>
+      <p>Your loan application has been submitted and signed. You will receive a copy of the signed agreement by email shortly.</p>
     </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdn.docuseal.com/js/form.js"></script>
   <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwNIGrghbeOMuFBb1lEj6aGPk9gJ3ZmBbMFyF7WhZxxqo2Z2U2S7jBfXftQAgWLFksmqg/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcCMwuIOByhXEWSVGM0JzfXJHJDSUMg7WRB2VWIs7AmRp7fLfOsnQ_-X5X6-JrciGN8g/exec";
 
     function parseCurrency(value) {
       if (!value) return 0;
@@ -1144,10 +1133,6 @@
       const step = document.querySelector('.form-step[data-step="' + stepNum + '"]');
       if (!step) return true;
       step.querySelectorAll("[data-required='true']").forEach(function(input) { if (!validateField(input)) valid = false; });
-      if (stepNum === 8) {
-        document.getElementById("signatureError").textContent = "";
-        if (signaturePad && signaturePad.isEmpty()) { document.getElementById("signatureError").textContent = "Please provide your signature."; valid = false; }
-      }
       if (stepNum === 9) {
         var selfieErrEl = document.getElementById("selfieError");
         selfieErrEl.textContent = "";
@@ -1186,8 +1171,6 @@
       if (stepNum === totalSteps) { stepNav.classList.add("hidden"); updateSummary(); }
       else stepNav.classList.remove("hidden");
       prevBtn.disabled = stepNum === 1;
-      // Initialize signature pad when Step 8 becomes visible (canvas has correct width then)
-      if (stepNum === 8) { setTimeout(initSignaturePad, 50); }
       // Camera lifecycle — start when entering step 9, stop when leaving
       if (stepNum === 9 && !selfieUploaded) {
         startCamera();
@@ -1201,29 +1184,7 @@
     nextBtn.addEventListener("click", function() { if (!validateStep(currentStep)) return; if (currentStep < totalSteps) showStep(currentStep + 1); });
     prevBtnFinal.addEventListener("click", function() { showStep(totalSteps - 1); });
 
-    var signaturePad;
-    function initSignaturePad() {
-      var canvas = document.getElementById("signatureCanvas");
-      if (!canvas) return;
-      // Never wipe an existing signature — save data, resize, restore
-      var existingData = (signaturePad && !signaturePad.isEmpty()) ? signaturePad.toData() : null;
-      var ratio = Math.max(window.devicePixelRatio || 1, 1);
-      var parentWidth = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
-      canvas.width = parentWidth * ratio;
-      canvas.height = 180 * ratio;
-      var ctx = canvas.getContext("2d");
-      ctx.scale(ratio, ratio);
-      signaturePad = new SignaturePad(canvas, { backgroundColor: "#FFFFFF", penColor: "#1B2A4A" });
-      if (existingData) signaturePad.fromData(existingData);
-    }
-
     window.addEventListener("load", function() { recalcAll(); });
-    // Only resize the pad when the canvas is actually visible (Step 8 is active)
-    window.addEventListener("resize", function() { if (currentStep === 8) initSignaturePad(); });
-
-    document.getElementById("clearSignature").addEventListener("click", function() {
-      if (signaturePad) { signaturePad.clear(); document.getElementById("signatureError").textContent = ""; }
-    });
 
     document.addEventListener("DOMContentLoaded", function() {
       document.querySelectorAll("[data-required='true']").forEach(function(input) { input.addEventListener("blur", function() { validateField(input); }); });
@@ -1242,6 +1203,8 @@
     var submitStatus = document.getElementById("submitStatus");
     var formCard = document.getElementById("formCard");
     var confirmationCard = document.getElementById("confirmationCard");
+    var signingCard = document.getElementById("signingCard");
+    var signedCard = document.getElementById("signedCard");
 
     // ── Document upload state ──────────────────────────────
     var driveFolderId   = null;
@@ -1374,7 +1337,7 @@
       return parts.join(", ");
     }
 
-    function buildPayload(signatureImage) {
+    function buildPayload() {
       var totalGrossIncome = parseCurrency(getValue("totalGrossIncome"));
       var totalMonthlyObligations = parseCurrency(getValue("totalMonthlyObligations"));
       var totalDebtExpenses = parseCurrency(getValue("totalDebtExpenses"));
@@ -1413,7 +1376,7 @@
         docLinks: docLinks,
         selfieLink: docLinks["selfie"] || "",
         folderLink: driveFolderLink || "",
-        submissionDate: getValue("submissionDate"), borrowerNameSigned: getValue("borrowerNameSigned"), signatureImage: signatureImage
+        submissionDate: getValue("submissionDate") || new Date().toISOString().slice(0, 10)
       };
     }
 
@@ -1425,15 +1388,7 @@
       for (i = 1; i <= totalSteps - 1; i++) {
         if (!validateStep(i)) { showStep(i); submitStatus.textContent = "Please review the highlighted fields before submitting."; submitStatus.classList.add("error"); return; }
       }
-      if (!signaturePad || signaturePad.isEmpty()) {
-        showStep(8);
-        document.getElementById("signatureError").textContent = "Please provide your signature.";
-        submitStatus.textContent = "Please complete the required signature before submitting.";
-        submitStatus.classList.add("error");
-        return;
-      }
-      var signatureImage = signaturePad.toDataURL("image/png");
-      var payload = buildPayload(signatureImage);
+      var payload = buildPayload();
       submitBtn.disabled = true;
       submitBtn.textContent = "Submitting...";
       submitStatus.textContent = "Submitting your application securely...";
@@ -1446,8 +1401,32 @@
         .then(function(result) {
           if (result && result.result === "success") {
             formCard.classList.add("hidden");
-            confirmationCard.classList.remove("hidden");
             submitStatus.textContent = "";
+
+            if (result.signing_slug) {
+              signingCard.classList.remove("hidden");
+              var container = document.getElementById("docuseal-container");
+              container.innerHTML = "";
+              var form = document.createElement("docuseal-form");
+              form.setAttribute("data-src", "https://docuseal.com/s/" + result.signing_slug);
+              form.setAttribute("id", "docuseal-form");
+              if (getValue("email")) form.setAttribute("data-email", getValue("email"));
+              if (getValue("name")) form.setAttribute("data-name", getValue("name"));
+              form.setAttribute("data-role", "Borrower");
+              container.appendChild(form);
+
+              form.addEventListener("completed", function(e) {
+                signingCard.classList.add("hidden");
+                signedCard.classList.remove("hidden");
+              });
+            } else {
+              confirmationCard.classList.remove("hidden");
+              var warnEl = confirmationCard.querySelector(".fallback-warning");
+              if (warnEl) {
+                if (result.warning) { warnEl.textContent = result.warning; warnEl.style.display = ""; }
+                else warnEl.style.display = "none";
+              }
+            }
           } else throw new Error(result && result.message ? result.message : "Unknown error");
         })
         .catch(function(err) {

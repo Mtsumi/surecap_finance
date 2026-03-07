@@ -26,6 +26,10 @@ function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
     if (data.type === "upload") return handleFileUpload(data);
+    // Docuseal webhook: by event_type or by payload shape (data.data.id + submitters)
+    if (data.type === "signed") return handleDocusealWebhook(data);
+    if (data.event_type && String(data.event_type).indexOf("submission") !== -1) return handleDocusealWebhook(data);
+    if (data.data && (data.data.id != null || data.data.submission_id) && (data.data.submitters || data.data.submitter)) return handleDocusealWebhook(data);
     return handleFormSubmit(data);
   } catch (err) {
     return jsonResponse({ result: "error", message: err.toString() });
@@ -65,9 +69,120 @@ function handleFileUpload(data) {
   }
 }
 
+// ── Docuseal: one-shot submission from PDF (no template step), return slug ───
+function createDocusealSubmission(pdfBlob, applicantEmail, applicantName) {
+  var apiKey = PropertiesService.getScriptProperties().getProperty("DOCUSEAL_API_KEY");
+  if (!apiKey || apiKey.trim() === "") throw new Error("DOCUSEAL_API_KEY is not set. Add it in Apps Script: Project Settings → Script properties.");
+  var base64Pdf = Utilities.base64Encode(pdfBlob.getBytes());
+
+  // POST /submissions/pdf — one-off submission from PDF (avoids template + Pro plan requirement)
+  var res = UrlFetchApp.fetch("https://api.docuseal.com/submissions/pdf", {
+    method: "post",
+    headers: { "X-Auth-Token": apiKey, "Content-Type": "application/json" },
+    payload: JSON.stringify({
+      name: "Loan Agreement - " + applicantName,
+      send_email: false,
+      documents: [{ name: "loan_agreement", file: base64Pdf }],
+      submitters: [{
+        email: applicantEmail,
+        name: applicantName,
+        role: "Borrower",
+        send_email: false
+      }]
+    }),
+    muteHttpExceptions: true
+  });
+
+  var code = res.getResponseCode();
+  var body = res.getContentText();
+
+  if (code < 200 || code >= 300) throw new Error("Docuseal API error " + code + ": " + body);
+
+  var data = JSON.parse(body);
+  var submitter = (data.submitters && data.submitters[0]) ? data.submitters[0] : null;
+  var slug = submitter ? submitter.slug : null;
+  var submissionId = data.id != null ? data.id : (submitter ? submitter.submission_id : null);
+
+  if (!slug) throw new Error("Docuseal submission missing slug: " + body);
+
+  return { slug: slug, submissionId: submissionId };
+}
+
+// ── Run from Apps Script editor to test Docuseal API (View → Logs after run) ───
+function testDocusealConnection() {
+  var apiKey = PropertiesService.getScriptProperties().getProperty("DOCUSEAL_API_KEY");
+  Logger.log("=== Docuseal API test ===");
+  Logger.log("DOCUSEAL_API_KEY present: " + (!!apiKey && apiKey.length > 0));
+  if (!apiKey || apiKey.trim() === "") {
+    Logger.log("FAIL: Add DOCUSEAL_API_KEY in Project Settings → Script properties.");
+    return;
+  }
+
+  var headers = { "X-Auth-Token": apiKey };
+
+  // Step 1: Verify API key with GET /submissions (list)
+  try {
+    var listRes = UrlFetchApp.fetch("https://api.docuseal.com/submissions?limit=1", {
+      method: "get",
+      headers: headers,
+      muteHttpExceptions: true
+    });
+    var listCode = listRes.getResponseCode();
+    Logger.log("GET /submissions → " + listCode);
+    if (listCode === 401) {
+      Logger.log("FAIL: Invalid or expired API key (401 Unauthorized).");
+      return;
+    }
+    if (listCode !== 200) {
+      Logger.log("GET response: " + listRes.getContentText().substring(0, 300));
+    }
+  } catch (e) {
+    Logger.log("GET error: " + e.toString());
+  }
+
+  // Step 2: Try POST /submissions/pdf with a minimal PDF
+  var minimalPdfBase64 = "JVBERi0xLjQKJcOkw7zDtsOcCjIgMCBvYmoKPDwKL0xlbmd0aCAzIDAgUgovVHlwZSAvUGFnZQovUGFyZW50IDQgMCBSCj4+CnN0cmVhbQp4nCk=";
+
+  try {
+    var res = UrlFetchApp.fetch("https://api.docuseal.com/submissions/pdf", {
+      method: "post",
+      headers: { "X-Auth-Token": apiKey, "Content-Type": "application/json" },
+      payload: JSON.stringify({
+        name: "Test - Surecap",
+        send_email: false,
+        documents: [{ name: "test", file: minimalPdfBase64 }],
+        submitters: [{ email: "test@example.com", name: "Test", role: "Borrower", send_email: false }]
+      }),
+      muteHttpExceptions: true
+    });
+
+    var code = res.getResponseCode();
+    var body = res.getContentText();
+    Logger.log("POST /submissions/pdf → " + code);
+    Logger.log("Response body (first 600 chars): " + (body.length > 600 ? body.substring(0, 600) + "..." : body));
+
+    if (code >= 200 && code < 300) {
+      var data = JSON.parse(body);
+      var slug = data.submitters && data.submitters[0] ? data.submitters[0].slug : null;
+      Logger.log("SUCCESS. Slug: " + slug + ", Submission id: " + data.id);
+    } else {
+      Logger.log("FAIL: Check message above. Common: 401=bad key, 403=plan limit, 422=invalid PDF or params.");
+    }
+  } catch (e) {
+    Logger.log("POST ERROR: " + e.toString());
+  }
+}
+
 // ── Form Submit Handler ──────────────────────────────────────────────────────
 function handleFormSubmit(data) {
   try {
+    // Reject webhooks or empty payloads — never write or email with undefined applicant data
+    var hasApplicant = (data.name && String(data.name).trim()) || (data.email && String(data.email).trim());
+    if (!hasApplicant) {
+      Logger.log("handleFormSubmit: missing name/email — possible webhook or bad payload. Keys: " + Object.keys(data).join(","));
+      return jsonResponse({ result: "error", message: "Missing applicant name or email." });
+    }
+
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var dl    = data.docLinks || {};
 
@@ -163,7 +278,41 @@ function handleFormSubmit(data) {
 
     var allAttachments = pdfBlob ? [pdfBlob].concat(docAttachments) : docAttachments;
 
-    // ── Email the lender ────────────────────────────────────────────────────
+    var applicantBody = [
+      "Dear " + data.name + ",", "",
+      "Thank you for submitting your loan application to " + COMPANY_NAME + ".",
+      "Please find your completed application form attached to this email for your records.", "",
+      "Our team will review your information and contact you shortly.", "",
+      "Sincerely,",
+      COMPANY_NAME + " Team"
+    ].join("\n");
+
+    // Send to Docuseal for signing — do not email yet, wait for webhook
+    if (pdfBlob) {
+      try {
+        var docusealResult = createDocusealSubmission(pdfBlob, data.email, data.name);
+        var lastRow = sheet.getLastRow();
+        sheet.getRange(lastRow, row.length + 1).setValue(docusealResult.submissionId);
+        sheet.getRange(lastRow, row.length + 2).setValue("Pending Signature");
+
+        return jsonResponse({ result: "success", signing_slug: docusealResult.slug, _v: "docuseal" });
+      } catch (docusealErr) {
+        Logger.log("Docuseal error: " + docusealErr);
+        // Fallback: send unsigned PDF by email so submission is never lost
+        if (data.email) {
+          MailApp.sendEmail({
+            to:       data.email,
+            subject:  "Your " + COMPANY_NAME + " application — confirmation & copy",
+            body:     applicantBody,
+            replyTo:  LENDER_EMAIL,
+            attachments: [pdfBlob]
+          });
+        }
+        return jsonResponse({ result: "success", signing_slug: null, warning: "Signing unavailable, PDF sent directly.", _v: "docuseal" });
+      }
+    }
+
+    // No PDF — notify lender only (existing fallback)
     var dtiNum  = parseFloat(data.dti)      || 0;
     var dtiFlag = dtiNum > 43 ? "⚠️ HIGH DTI" : dtiNum > 36 ? "⚠️ ELEVATED DTI" : "✅ ACCEPTABLE DTI";
     var nwNum   = parseFloat(data.netWorth) || 0;
@@ -176,7 +325,7 @@ function handleFormSubmit(data) {
 
     var lenderBody = [
       "New application received on " + new Date().toLocaleString(),
-      pdfBlob ? "Full application PDF is attached." : ("⚠️ PDF generation failed — see Google Sheet for full data.\n   Error: " + pdfErrorMsg), "",
+      "⚠️ PDF generation failed — see Google Sheet for full data.\n   Error: " + pdfErrorMsg, "",
       "═══════════════════════════════",
       "  APPLICANT", "═══════════════════════════════",
       "Name   : " + data.name,
@@ -212,32 +361,85 @@ function handleFormSubmit(data) {
     if (allAttachments.length > 0) lenderMailOptions.attachments = allAttachments;
     MailApp.sendEmail(lenderMailOptions);
 
-    // ── Confirmation to applicant ───────────────────────────────────────────
     if (data.email) {
-      var applicantBody = [
-        "Dear " + data.name + ",", "",
-        "Thank you for submitting your loan application to " + COMPANY_NAME + ".",
-        "Please find your completed application form attached to this email for your records.", "",
-        "Our team will review your information and contact you shortly.", "",
-        "Sincerely,",
-        COMPANY_NAME + " Team"
-      ].join("\n");
-
       var applicantMailOptions = {
         to:       data.email,
         subject:  "Your " + COMPANY_NAME + " application — confirmation & copy",
         body:     applicantBody,
         replyTo:  LENDER_EMAIL
       };
-      if (pdfBlob) applicantMailOptions.attachments = [pdfBlob];
       MailApp.sendEmail(applicantMailOptions);
     }
 
-    return jsonResponse({ result: "success" });
+    return jsonResponse({ result: "success", _v: "docuseal" });
 
   } catch (err) {
     return jsonResponse({ result: "error", message: err.toString() });
   }
+}
+
+// ── Docuseal webhook: submission.completed → email signed PDF, update sheet ──
+function handleDocusealWebhook(data) {
+  var submissionId = data.data && data.data.id != null ? data.data.id : data.submission_id;
+  var signerEmail  = (data.data && data.data.submitters && data.data.submitters[0])
+    ? data.data.submitters[0].email
+    : (data.email || (data.data && data.data.submitters && data.data.submitters[0] ? data.data.submitters[0].email : null));
+
+  if (!submissionId) {
+    Logger.log("Docuseal webhook missing submission id: " + JSON.stringify(data));
+    return jsonResponse({ result: "error", message: "Missing submission id" });
+  }
+
+  var apiKey = PropertiesService.getScriptProperties().getProperty("DOCUSEAL_API_KEY");
+  var subRes = UrlFetchApp.fetch("https://api.docuseal.com/submissions/" + submissionId, {
+    headers: { "X-Auth-Token": apiKey },
+    muteHttpExceptions: true
+  });
+  var subData = JSON.parse(subRes.getContentText());
+  var docUrl = (subData.documents && subData.documents[0] && subData.documents[0].url)
+    ? subData.documents[0].url
+    : (subData.combined_document_url || subData.document_url || null);
+  if (!docUrl) {
+    Logger.log("No signed document URL in submission: " + subRes.getContentText().substring(0, 500));
+    return jsonResponse({ result: "error", message: "No document URL" });
+  }
+
+  if (!signerEmail && subData.submitters && subData.submitters[0]) signerEmail = subData.submitters[0].email;
+
+  var pdfResponse = UrlFetchApp.fetch(docUrl, { muteHttpExceptions: true });
+  var signedPdfBlob = pdfResponse.getBlob().setName("Signed_Loan_Agreement.pdf");
+
+  var signedBody = "Dear Applicant,\n\nThank you for completing your loan application with " + COMPANY_NAME + ".\n\nPlease find your signed loan agreement attached. Our team will be in touch shortly.\n\nSincerely,\n" + COMPANY_NAME + " Team";
+
+  if (signerEmail) {
+    MailApp.sendEmail({
+      to:       signerEmail,
+      subject:  "Your " + COMPANY_NAME + " loan agreement — signed copy",
+      body:     signedBody,
+      replyTo:  LENDER_EMAIL,
+      attachments: [signedPdfBlob]
+    });
+  }
+
+  MailApp.sendEmail({
+    to:       LENDER_EMAIL,
+    subject:  "Signed loan agreement received — " + (signerEmail || "applicant"),
+    body:     "A loan application has been signed by " + (signerEmail || "applicant") + ". Please find the signed agreement attached.",
+    attachments: [signedPdfBlob]
+  });
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data2 = sheet.getDataRange().getValues();
+  for (var i = 1; i < data2.length; i++) {
+    for (var j = 0; j < data2[i].length; j++) {
+      if (String(data2[i][j]) === String(submissionId)) {
+        sheet.getRange(i + 1, j + 2).setValue("Signed ✓");
+        break;
+      }
+    }
+  }
+
+  return jsonResponse({ result: "success" });
 }
 
 // ── Application PDF Builder ──────────────────────────────────────────────────
@@ -424,17 +626,10 @@ function buildApplicationDoc(data) {
   declaration.setFontSize(10);
   declaration.setItalic(true);
   body.appendParagraph("");
-
-  if (data.signatureImage) {
-    try {
-      var sigBase64 = data.signatureImage.replace(/^data:[^;]+;base64,/, "");
-      var sigBlob   = Utilities.newBlob(Utilities.base64Decode(sigBase64), "image/png", "signature.png");
-      body.appendImage(sigBlob).setWidth(280);
-    } catch (sigErr) { Logger.log("Signature embed failed: " + sigErr); }
-  }
+  docField(body, "Date", data.submissionDate);
   body.appendParagraph("");
-  docField(body, "Signed by", data.borrowerNameSigned);
-  docField(body, "Date",      data.submissionDate);
+  // Docuseal replaces this tag with an interactive signature field when the PDF is sent for signing
+  body.appendParagraph("{{Borrower Signature;role=Borrower;type=signature;format=drawn_or_typed}}");
 
   doc.saveAndClose();
   return doc;
@@ -510,7 +705,8 @@ function setupHeaders() {
     "Identity Selfie (Link)",
     "Drive Folder (Link)",
     // Signature
-    "Submission Date", "Borrower Name (Signed)", "Signature Image (base64)"
+    "Submission Date", "Borrower Name (Signed)", "Signature Image (base64)",
+    "Submission ID", "Signature Status"
   ];
 
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
