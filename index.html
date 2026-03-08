@@ -808,7 +808,7 @@
                     </div>
                     <label class="file-pick-btn" for="file-utilities">
                       &#128206; Choose file
-                      <input type="file" id="file-utilities" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="utilities" />
+                      <input type="file" id="file-utilities" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="utilities" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-utilities"></div>
@@ -823,7 +823,7 @@
                     </div>
                     <label class="file-pick-btn" for="file-pay_stubs">
                       &#128206; Choose file
-                      <input type="file" id="file-pay_stubs" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="pay_stubs" />
+                      <input type="file" id="file-pay_stubs" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="pay_stubs" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-pay_stubs"></div>
@@ -838,7 +838,7 @@
                     </div>
                     <label class="file-pick-btn" for="file-gov_assessments">
                       &#128206; Choose file
-                      <input type="file" id="file-gov_assessments" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="gov_assessments" />
+                      <input type="file" id="file-gov_assessments" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="gov_assessments" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-gov_assessments"></div>
@@ -853,7 +853,7 @@
                     </div>
                     <label class="file-pick-btn" for="file-tax_bills">
                       &#128206; Choose file
-                      <input type="file" id="file-tax_bills" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="tax_bills" />
+                      <input type="file" id="file-tax_bills" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="tax_bills" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-tax_bills"></div>
@@ -868,7 +868,7 @@
                     </div>
                     <label class="file-pick-btn" for="file-condo_fees">
                       &#128206; Choose file
-                      <input type="file" id="file-condo_fees" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="condo_fees" />
+                      <input type="file" id="file-condo_fees" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="condo_fees" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-condo_fees"></div>
@@ -883,7 +883,7 @@
                     </div>
                     <label class="file-pick-btn" for="file-loan_contracts">
                       &#128206; Choose file
-                      <input type="file" id="file-loan_contracts" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="loan_contracts" />
+                      <input type="file" id="file-loan_contracts" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="loan_contracts" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-loan_contracts"></div>
@@ -898,14 +898,14 @@
                     </div>
                     <label class="file-pick-btn" for="file-credit_report">
                       &#128206; Choose file
-                      <input type="file" id="file-credit_report" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="credit_report" />
+                      <input type="file" id="file-credit_report" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="credit_report" multiple />
                     </label>
                   </div>
                   <div class="doc-status-row hidden" id="status-credit_report"></div>
                 </div>
 
               </div>
-              <div class="doc-size-note">Accepted: PDF, JPG, PNG — max 10 MB per file. Files are uploaded to Google Drive immediately.</div>
+              <div class="doc-size-note">Accepted: PDF, JPG, PNG — max 10 MB per file, up to 5 files per category. Files are uploaded to Google Drive immediately.</div>
               <small class="error-message"></small>
             </div>
           </section>
@@ -1209,15 +1209,17 @@
     // ── Document upload state ──────────────────────────────
     var driveFolderId   = null;
     var driveFolderLink = null;
-    var docLinks        = {};   // { utilities: "https://...", pay_stubs: "https://...", ... }
+    var docLinks        = {};   // selfie only; DOC_TYPES use uploadedFiles
+    var uploadedFiles   = {};   // { utilities: [{ name, link }], ... } — max 5 per type
     var MAX_FILE_BYTES  = 10 * 1024 * 1024; // 10 MB
+    var MAX_FILES_PER_TYPE = 5;
 
     var DOC_TYPES = [
       "utilities", "pay_stubs", "gov_assessments",
       "tax_bills", "condo_fees", "loan_contracts", "credit_report"
     ];
 
-    function setUploadStatus(docType, state, message) {
+    function setUploadStatus(docType, state, messageOrList) {
       var statusEl = document.getElementById("status-" + docType);
       var rowEl    = document.getElementById("row-" + docType);
       if (!statusEl) return;
@@ -1225,45 +1227,64 @@
       statusEl.classList.remove("hidden");
 
       if (state === "uploading") {
-        statusEl.innerHTML = '<span class="spinner"></span><span class="upload-msg uploading">' + message + '</span>';
+        statusEl.innerHTML = '<span class="spinner"></span><span class="upload-msg uploading">' + (messageOrList || "Uploading…") + '</span>';
         rowEl.classList.remove("has-file");
-      } else if (state === "success") {
-        var chip = document.createElement("div");
-        chip.className = "uploaded-chip";
-        chip.innerHTML = '<span>&#10003; ' + message + '</span>';
-        var removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.className = "remove-file-btn";
-        removeBtn.title = "Remove file";
-        removeBtn.textContent = "\u00D7";
-        removeBtn.setAttribute("data-doc", docType);
-        chip.appendChild(removeBtn);
-        statusEl.appendChild(chip);
+      } else if (state === "success" && Array.isArray(messageOrList)) {
+        messageOrList.forEach(function(item, index) {
+          var chip = document.createElement("div");
+          chip.className = "uploaded-chip";
+          chip.innerHTML = '<span>&#10003; ' + (item.name || "File " + (index + 1)) + '</span>';
+          var removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "remove-file-btn";
+          removeBtn.title = "Remove file";
+          removeBtn.textContent = "\u00D7";
+          removeBtn.setAttribute("data-doc", docType);
+          removeBtn.setAttribute("data-index", index);
+          chip.appendChild(removeBtn);
+          statusEl.appendChild(chip);
+          removeBtn.addEventListener("click", function() { removeDocument(docType, index); });
+        });
         rowEl.classList.add("has-file");
         document.getElementById("chk-" + docType).checked = true;
-        removeBtn.addEventListener("click", function() { removeDocument(docType); });
       } else if (state === "error") {
         var errSpan = document.createElement("span");
         errSpan.className = "upload-msg error-msg";
-        errSpan.textContent = message;
+        errSpan.textContent = messageOrList || "Error";
         statusEl.appendChild(errSpan);
         rowEl.classList.remove("has-file");
       } else {
         statusEl.classList.add("hidden");
         rowEl.classList.remove("has-file");
+        document.getElementById("chk-" + docType).checked = false;
       }
     }
 
-    function removeDocument(docType) {
-      delete docLinks[docType];
-      document.getElementById("chk-" + docType).checked = false;
-      document.getElementById("file-" + docType).value = "";
-      setUploadStatus(docType, "idle");
+    function removeDocument(docType, index) {
+      if (!uploadedFiles[docType]) return;
+      if (index !== undefined) {
+        uploadedFiles[docType].splice(index, 1);
+        if (uploadedFiles[docType].length === 0) delete uploadedFiles[docType];
+      } else {
+        delete uploadedFiles[docType];
+      }
+      var fileInput = document.getElementById("file-" + docType);
+      if (fileInput) fileInput.value = "";
+      if (uploadedFiles[docType] && uploadedFiles[docType].length > 0) {
+        setUploadStatus(docType, "success", uploadedFiles[docType]);
+      } else {
+        setUploadStatus(docType, "idle");
+      }
     }
 
     function uploadDocument(docType, file) {
       if (file.size > MAX_FILE_BYTES) {
         setUploadStatus(docType, "error", "File too large — max 10 MB.");
+        return;
+      }
+      var list = uploadedFiles[docType] || [];
+      if (list.length >= MAX_FILES_PER_TYPE) {
+        setUploadStatus(docType, "error", "Max " + MAX_FILES_PER_TYPE + " files per category.");
         return;
       }
 
@@ -1293,8 +1314,9 @@
           if (result.result === "success") {
             if (result.folderId)   driveFolderId   = result.folderId;
             if (result.folderLink) driveFolderLink = result.folderLink;
-            docLinks[docType] = result.fileLink;
-            setUploadStatus(docType, "success", file.name);
+            if (!uploadedFiles[docType]) uploadedFiles[docType] = [];
+            uploadedFiles[docType].push({ name: file.name, link: result.fileLink });
+            setUploadStatus(docType, "success", uploadedFiles[docType]);
           } else {
             throw new Error(result.message || "Upload failed");
           }
@@ -1310,14 +1332,22 @@
       reader.readAsDataURL(file);
     }
 
-    // Wire up file inputs
+    // Wire up file inputs (multiple files, max 5 per type)
     DOC_TYPES.forEach(function(docType) {
       var fileInput = document.getElementById("file-" + docType);
       if (fileInput) {
         fileInput.addEventListener("change", function() {
-          if (fileInput.files && fileInput.files[0]) {
-            uploadDocument(docType, fileInput.files[0]);
+          var files = fileInput.files ? Array.from(fileInput.files) : [];
+          var list = uploadedFiles[docType] || [];
+          var remaining = MAX_FILES_PER_TYPE - list.length;
+          if (remaining <= 0) {
+            setUploadStatus(docType, "error", "Max " + MAX_FILES_PER_TYPE + " files per category.");
+            fileInput.value = "";
+            return;
           }
+          var toUpload = files.slice(0, remaining);
+          toUpload.forEach(function(file) { uploadDocument(docType, file); });
+          fileInput.value = "";
         });
       }
     });
@@ -1373,7 +1403,12 @@
         prop1Address: buildPropertyAddress(1), prop1MarketValue: prop1Market, prop1Mortgage: prop1Mortgage, prop1Equity: prop1Market - prop1Mortgage, prop1LTV: prop1Market > 0 ? ((prop1Mortgage / prop1Market) * 100).toFixed(1) : "",
         prop2Address: buildPropertyAddress(2), prop2MarketValue: prop2Market, prop2Mortgage: prop2Mortgage, prop2Equity: prop2Market - prop2Mortgage, prop2LTV: prop2Market > 0 ? ((prop2Mortgage / prop2Market) * 100).toFixed(1) : "",
         prop3Address: buildPropertyAddress(3), prop3MarketValue: prop3Market, prop3Mortgage: prop3Mortgage, prop3Equity: prop3Market - prop3Mortgage, prop3LTV: prop3Market > 0 ? ((prop3Mortgage / prop3Market) * 100).toFixed(1) : "",
-        docLinks: docLinks,
+        docLinks: (function() {
+          var out = {};
+          DOC_TYPES.forEach(function(t) { out[t] = (uploadedFiles[t] || []).map(function(f) { return f.link; }); });
+          out.selfie = docLinks.selfie || "";
+          return out;
+        })(),
         selfieLink: docLinks["selfie"] || "",
         folderLink: driveFolderLink || "",
         submissionDate: getValue("submissionDate") || new Date().toISOString().slice(0, 10)

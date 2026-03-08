@@ -70,7 +70,7 @@ function handleFileUpload(data) {
 }
 
 // ── Docuseal: one-shot submission from PDF (no template step), return slug ───
-function createDocusealSubmission(pdfBlob, applicantEmail, applicantName) {
+function createDocusealSubmission(pdfBlob, applicantEmail, applicantName, applicantPhone) {
   var apiKey = PropertiesService.getScriptProperties().getProperty("DOCUSEAL_API_KEY");
   if (!apiKey || apiKey.trim() === "") throw new Error("DOCUSEAL_API_KEY is not set. Add it in Apps Script: Project Settings → Script properties.");
   var base64Pdf = Utilities.base64Encode(pdfBlob.getBytes());
@@ -87,7 +87,9 @@ function createDocusealSubmission(pdfBlob, applicantEmail, applicantName) {
         email: applicantEmail,
         name: applicantName,
         role: "Borrower",
-        send_email: false
+        send_email: false,
+        phone: applicantPhone || "",
+        require_phone_2fa: !!(applicantPhone && applicantPhone.trim())
       }]
     }),
     muteHttpExceptions: true
@@ -214,14 +216,14 @@ function handleFormSubmit(data) {
       data.prop1Address, data.prop1MarketValue, data.prop1Mortgage, data.prop1Equity, data.prop1LTV,
       data.prop2Address, data.prop2MarketValue, data.prop2Mortgage, data.prop2Equity, data.prop2LTV,
       data.prop3Address, data.prop3MarketValue, data.prop3Mortgage, data.prop3Equity, data.prop3LTV,
-      // Section 8 — individual doc columns + selfie + folder
-      dl.utilities        || "—",
-      dl.pay_stubs        || "—",
-      dl.gov_assessments  || "—",
-      dl.tax_bills        || "—",
-      dl.condo_fees       || "—",
-      dl.loan_contracts   || "—",
-      dl.credit_report    || "—",
+      // Section 8 — individual doc columns (multiple links newline-separated)
+      (docLinksArray(dl.utilities).join("\n")        || "—"),
+      (docLinksArray(dl.pay_stubs).join("\n")       || "—"),
+      (docLinksArray(dl.gov_assessments).join("\n")  || "—"),
+      (docLinksArray(dl.tax_bills).join("\n")       || "—"),
+      (docLinksArray(dl.condo_fees).join("\n")      || "—"),
+      (docLinksArray(dl.loan_contracts).join("\n")  || "—"),
+      (docLinksArray(dl.credit_report).join("\n")   || "—"),
       data.selfieLink     || "—",
       data.folderLink     || "—",
       // Signature
@@ -262,13 +264,16 @@ function handleFormSubmit(data) {
         credit_report:   "Credit Report"
       };
       Object.keys(docTypeLabels).forEach(function(key) {
-        var fileId = fileIdFromLink(dl[key]);
-        if (!fileId) return;
-        try {
-          var blob = DriveApp.getFileById(fileId).getBlob();
-          blob.setName(docTypeLabels[key] + " — " + (data.name || ""));
-          docAttachments.push(blob);
-        } catch (fetchErr) { Logger.log("Could not fetch " + key + ": " + fetchErr); }
+        var links = docLinksArray(dl[key]);
+        links.slice(0, 5).forEach(function(link, idx) {
+          var fileId = fileIdFromLink(link);
+          if (!fileId) return;
+          try {
+            var blob = DriveApp.getFileById(fileId).getBlob();
+            blob.setName(links.length > 1 ? docTypeLabels[key] + " " + (idx + 1) + " — " + (data.name || "") : docTypeLabels[key] + " — " + (data.name || ""));
+            docAttachments.push(blob);
+          } catch (fetchErr) { Logger.log("Could not fetch " + key + ": " + fetchErr); }
+        });
       });
 
     } catch (pdfErr) {
@@ -290,7 +295,8 @@ function handleFormSubmit(data) {
     // Send to Docuseal for signing — do not email yet, wait for webhook
     if (pdfBlob) {
       try {
-        var docusealResult = createDocusealSubmission(pdfBlob, data.email, data.name);
+        var phone = formatE164(data.cellPhone || "");
+        var docusealResult = createDocusealSubmission(pdfBlob, data.email, data.name, phone);
         var lastRow = sheet.getLastRow();
         sheet.getRange(lastRow, row.length + 1).setValue(docusealResult.submissionId);
         sheet.getRange(lastRow, row.length + 2).setValue("Pending Signature");
@@ -320,7 +326,10 @@ function handleFormSubmit(data) {
 
     var uploadedDocs = Object.keys(dl)
       .filter(function(k) { return k !== "selfie"; })
-      .map(function(k) { return "  • " + k.replace(/_/g, " ") + ": " + dl[k]; })
+      .map(function(k) {
+        var links = docLinksArray(dl[k]);
+        return "  • " + k.replace(/_/g, " ") + ": " + (links.length ? links.join(", ") : "—");
+      })
       .join("\n") || "  None uploaded";
 
     var lenderBody = [
@@ -443,31 +452,43 @@ function handleDocusealWebhook(data) {
 }
 
 // ── Application PDF Builder ──────────────────────────────────────────────────
+var PDF_LOGO_WIDTH      = 300;  // Logo dominant on cover
+var PDF_DOC_IMAGE_WIDTH = 260;  // Section 8 embedded images
+var PDF_SELFIE_WIDTH    = 100;   // Keep selfie compact (portrait = tall; small width = less vertical space)
+var PDF_SELFIE_HEIGHT   = 100;  // Cap height so selfie isn't "long" in PDF
+var PDF_MARGIN_TOP      = 36;
+var PDF_MARGIN_BOTTOM   = 36;
+var PDF_MARGIN_SIDE     = 54;
+
 function buildApplicationDoc(data) {
   var dl       = data.docLinks || {};
   var docTitle = COMPANY_NAME + " — Application — " + sanitizeName(data.name || "Unknown") + " — " + (data.submissionDate || today());
   var doc      = DocumentApp.create(docTitle);
   var body     = doc.getBody();
 
-  body.setMarginTop(36);
-  body.setMarginBottom(36);
-  body.setMarginLeft(54);
-  body.setMarginRight(54);
+  body.setMarginTop(PDF_MARGIN_TOP);
+  body.setMarginBottom(PDF_MARGIN_BOTTOM);
+  body.setMarginLeft(PDF_MARGIN_SIDE);
+  body.setMarginRight(PDF_MARGIN_SIDE);
 
   // ── Logo ──────────────────────────────────────────────────────────────────
   if (LOGO_FILE_ID) {
     try {
-      // Accept either a bare file ID or a full Drive URL
       var logoId = fileIdFromLink(LOGO_FILE_ID) || LOGO_FILE_ID;
       var logoBlob = DriveApp.getFileById(logoId).getBlob();
-      body.appendImage(logoBlob).setWidth(170);
+      body.appendImage(logoBlob).setWidth(PDF_LOGO_WIDTH);
+      var logoParagraph = body.getChild(body.getNumChildren() - 1);
+      if (logoParagraph.getType() === DocumentApp.ElementType.PARAGRAPH) {
+        logoParagraph.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+      }
       body.appendParagraph("");
     } catch (logoErr) { Logger.log("Logo not loaded: " + logoErr); }
   }
 
   // ── Cover ─────────────────────────────────────────────────────────────────
-  var titleP = body.appendParagraph(COMPANY_NAME.toUpperCase() + " — CREDIT APPLICATION");
+  var titleP = body.appendParagraph("LOAN APPLICATION");
   titleP.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  titleP.setFontSize(14);  // Smaller than logo so logo stays dominant
   titleP.setAlignment(DocumentApp.HorizontalAlignment.LEFT);
 
   docField(body, "Submission Date", data.submissionDate);
@@ -575,28 +596,27 @@ function buildApplicationDoc(data) {
     credit_report:   "Credit Report"
   };
   Object.keys(docTypeMap).forEach(function(key) {
-    var link = dl[key];
-    if (!link || link === "—") {
+    var links = docLinksArray(dl[key]);
+    if (links.length === 0) {
       docField(body, docTypeMap[key], "Not uploaded");
       return;
     }
-    var fileId = fileIdFromLink(link);
+    var fileId = fileIdFromLink(links[0]);
     var embedded = false;
-    if (fileId) {
+    if (fileId && links.length === 1) {
       try {
         var docFile = DriveApp.getFileById(fileId);
         var mime    = docFile.getMimeType();
         if (mime && mime.indexOf("image/") === 0) {
-          // Embed image files directly
           var imgLabel = body.appendParagraph(docTypeMap[key] + ":");
           imgLabel.setFontSize(10);
           imgLabel.editAsText().setBold(0, docTypeMap[key].length, true);
-          body.appendImage(docFile.getBlob()).setWidth(350);
+          body.appendImage(docFile.getBlob()).setWidth(PDF_DOC_IMAGE_WIDTH);
           embedded = true;
         }
       } catch (imgErr) { /* fall through to link */ }
     }
-    if (!embedded) docField(body, docTypeMap[key], link);
+    if (!embedded) docField(body, docTypeMap[key], links.join("\n"));
   });
 
   if (data.folderLink) docField(body, "Drive Folder (all files)", data.folderLink);
@@ -608,7 +628,9 @@ function buildApplicationDoc(data) {
     var selfieId = fileIdFromLink(data.selfieLink);
     if (selfieId) {
       try {
-        body.appendImage(DriveApp.getFileById(selfieId).getBlob()).setWidth(200);
+        body.appendImage(DriveApp.getFileById(selfieId).getBlob())
+          .setWidth(PDF_SELFIE_WIDTH)
+          .setHeight(PDF_SELFIE_HEIGHT);
         selfieEmbedded = true;
       } catch (selfieErr) { Logger.log("Selfie embed failed: " + selfieErr); }
     }
@@ -778,6 +800,13 @@ function fileIdFromLink(link) {
   return m ? m[1] : null;
 }
 
+/** Normalize docLinks value to array of link strings (supports single link or array). */
+function docLinksArray(val) {
+  if (Array.isArray(val)) return val.filter(function(v) { return v && String(v).trim(); });
+  if (val && typeof val === "string" && val !== "—") return [val];
+  return [];
+}
+
 function getOrCreateFolder(name, parent) {
   var folders = parent.getFoldersByName(name);
   if (folders.hasNext()) return folders.next();
@@ -795,6 +824,46 @@ function today() {
 function fmt(value) {
   var num = parseFloat(value) || 0;
   return num.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/**
+ * Normalise a phone number to E.164 format for DocuSeal.
+ *
+ * International numbers (leading "+" or "00") are preserved as-is after
+ * stripping formatting characters — no country code is assumed or forced.
+ * Bare 10-digit numbers (or 11-digit numbers starting with "1") are assumed
+ * to be NANP and get "+1" prepended.
+ *
+ * Examples:
+ *   "514-555-0123"        → "+15145550123"   (bare NANP 10-digit)
+ *   "+1 (514) 555-0123"   → "+15145550123"   (explicit +1)
+ *   "0015145550123"       → "+15145550123"   (00-prefixed)
+ *   "+254 712 531 490"    → "+254712531490"  (Kenyan, preserved)
+ *   "00254712531490"      → "+254712531490"  (00-prefixed international)
+ *   ""                    → ""
+ */
+function formatE164(raw) {
+  if (!raw) return "";
+  var trimmed = raw.trim();
+
+  // Determine whether the caller supplied an explicit country code.
+  var hasCountryCode = trimmed.charAt(0) === "+" || trimmed.indexOf("00") === 0;
+
+  var digits = trimmed.replace(/\D/g, "");
+
+  if (hasCountryCode) {
+    // Strip leading 00 (IDD prefix) — replace with "+"
+    if (digits.indexOf("00") === 0) digits = digits.substring(2);
+    // Need at least 7 digits after country code (shortest valid E.164 is ~7)
+    if (digits.length < 7) return "";
+    return "+" + digits;
+  }
+
+  // No country code supplied — assume NANP (+1)
+  // Strip leading 1 if it gives exactly 11 digits
+  if (digits.length === 11 && digits.charAt(0) === "1") digits = digits.substring(1);
+  if (digits.length < 10) return "";
+  return "+1" + digits.slice(-10);
 }
 
 function jsonResponse(obj) {
