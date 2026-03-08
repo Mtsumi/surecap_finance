@@ -409,6 +409,38 @@
     .upload-msg.uploading { color: #3a5fa0; }
     .upload-msg.error-msg { color: #c0392b; }
 
+    .uploading-chip {
+      background: #e8f0fe;
+      color: #3a5fa0;
+      border-radius: 4px;
+      padding: 4px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      max-width: 260px;
+      overflow: hidden;
+    }
+
+    .error-chip {
+      background: #fff0ef;
+      color: #c0392b;
+      border-radius: 4px;
+      padding: 4px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      max-width: 260px;
+      overflow: hidden;
+    }
+
+    .uploading-chip span, .error-chip span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .spinner {
       display: inline-block;
       width: 13px;
@@ -1211,6 +1243,7 @@
     var driveFolderLink = null;
     var docLinks        = {};   // selfie only; DOC_TYPES use uploadedFiles
     var uploadedFiles   = {};   // { utilities: [{ name, link }], ... } — max 5 per type
+    var uploadingFiles  = {};   // { utilities: { "file.pdf": "uploading"|"error" }, ... }
     var MAX_FILE_BYTES  = 10 * 1024 * 1024; // 10 MB
     var MAX_FILES_PER_TYPE = 5;
 
@@ -1219,44 +1252,77 @@
       "tax_bills", "condo_fees", "loan_contracts", "credit_report"
     ];
 
-    function setUploadStatus(docType, state, messageOrList) {
+    function renderDocStatus(docType) {
       var statusEl = document.getElementById("status-" + docType);
       var rowEl    = document.getElementById("row-" + docType);
+      var chk      = document.getElementById("chk-" + docType);
       if (!statusEl) return;
+
+      var completed     = uploadedFiles[docType] || [];
+      var inflightMap   = uploadingFiles[docType] || {};
+      var inflightKeys  = Object.keys(inflightMap);
+      var hasAny        = completed.length > 0 || inflightKeys.length > 0;
+
+      if (!hasAny) {
+        statusEl.innerHTML = "";
+        statusEl.classList.add("hidden");
+        rowEl.classList.remove("has-file");
+        if (chk) { chk.checked = false; chk.indeterminate = false; }
+        return;
+      }
+
       statusEl.innerHTML = "";
       statusEl.classList.remove("hidden");
 
-      if (state === "uploading") {
-        statusEl.innerHTML = '<span class="spinner"></span><span class="upload-msg uploading">' + (messageOrList || "Uploading…") + '</span>';
-        rowEl.classList.remove("has-file");
-      } else if (state === "success" && Array.isArray(messageOrList)) {
-        messageOrList.forEach(function(item, index) {
-          var chip = document.createElement("div");
-          chip.className = "uploaded-chip";
-          chip.innerHTML = '<span>&#10003; ' + (item.name || "File " + (index + 1)) + '</span>';
-          var removeBtn = document.createElement("button");
-          removeBtn.type = "button";
-          removeBtn.className = "remove-file-btn";
-          removeBtn.title = "Remove file";
-          removeBtn.textContent = "\u00D7";
-          removeBtn.setAttribute("data-doc", docType);
-          removeBtn.setAttribute("data-index", index);
-          chip.appendChild(removeBtn);
-          statusEl.appendChild(chip);
-          removeBtn.addEventListener("click", function() { removeDocument(docType, index); });
-        });
+      // Completed chips
+      completed.forEach(function(item, index) {
+        var chip = document.createElement("div");
+        chip.className = "uploaded-chip";
+        chip.innerHTML = '<span>&#10003; ' + (item.name || "File " + (index + 1)) + '</span>';
+        var removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "remove-file-btn";
+        removeBtn.title = "Remove file";
+        removeBtn.textContent = "\u00D7";
+        chip.appendChild(removeBtn);
+        statusEl.appendChild(chip);
+        removeBtn.addEventListener("click", function() { removeDocument(docType, index); });
+      });
+
+      // In-progress and error chips
+      var anyUploading = false;
+      inflightKeys.forEach(function(fname) {
+        var state = inflightMap[fname];
+        var chip = document.createElement("div");
+        if (state === "uploading") {
+          anyUploading = true;
+          chip.className = "uploading-chip";
+          chip.innerHTML = '<span class="spinner"></span><span>' + fname + '</span>';
+        } else {
+          chip.className = "error-chip";
+          chip.innerHTML = '<span>&#9888; ' + fname + ' \u2014 failed, please re-add</span>';
+        }
+        statusEl.appendChild(chip);
+      });
+
+      // Checkbox state
+      if (chk) {
+        if (anyUploading) {
+          chk.indeterminate = true;
+          chk.checked = false;
+        } else if (completed.length > 0) {
+          chk.indeterminate = false;
+          chk.checked = true;
+        } else {
+          chk.indeterminate = false;
+          chk.checked = false;
+        }
+      }
+
+      if (completed.length > 0) {
         rowEl.classList.add("has-file");
-        document.getElementById("chk-" + docType).checked = true;
-      } else if (state === "error") {
-        var errSpan = document.createElement("span");
-        errSpan.className = "upload-msg error-msg";
-        errSpan.textContent = messageOrList || "Error";
-        statusEl.appendChild(errSpan);
-        rowEl.classList.remove("has-file");
       } else {
-        statusEl.classList.add("hidden");
         rowEl.classList.remove("has-file");
-        document.getElementById("chk-" + docType).checked = false;
       }
     }
 
@@ -1270,25 +1336,26 @@
       }
       var fileInput = document.getElementById("file-" + docType);
       if (fileInput) fileInput.value = "";
-      if (uploadedFiles[docType] && uploadedFiles[docType].length > 0) {
-        setUploadStatus(docType, "success", uploadedFiles[docType]);
-      } else {
-        setUploadStatus(docType, "idle");
-      }
+      renderDocStatus(docType);
     }
 
     function uploadDocument(docType, file) {
+      if (!uploadingFiles[docType]) uploadingFiles[docType] = {};
+
       if (file.size > MAX_FILE_BYTES) {
-        setUploadStatus(docType, "error", "File too large — max 10 MB.");
+        uploadingFiles[docType][file.name] = "error";
+        renderDocStatus(docType);
         return;
       }
       var list = uploadedFiles[docType] || [];
       if (list.length >= MAX_FILES_PER_TYPE) {
-        setUploadStatus(docType, "error", "Max " + MAX_FILES_PER_TYPE + " files per category.");
+        uploadingFiles[docType][file.name] = "error";
+        renderDocStatus(docType);
         return;
       }
 
-      setUploadStatus(docType, "uploading", "Uploading to Drive…");
+      uploadingFiles[docType][file.name] = "uploading";
+      renderDocStatus(docType);
 
       var reader = new FileReader();
       reader.onload = function(e) {
@@ -1314,20 +1381,22 @@
           if (result.result === "success") {
             if (result.folderId)   driveFolderId   = result.folderId;
             if (result.folderLink) driveFolderLink = result.folderLink;
+            delete uploadingFiles[docType][file.name];
             if (!uploadedFiles[docType]) uploadedFiles[docType] = [];
             uploadedFiles[docType].push({ name: file.name, link: result.fileLink });
-            setUploadStatus(docType, "success", uploadedFiles[docType]);
+            renderDocStatus(docType);
           } else {
             throw new Error(result.message || "Upload failed");
           }
         })
-        .catch(function(err) {
-          setUploadStatus(docType, "error", "Upload failed. Please try again.");
-          document.getElementById("file-" + docType).value = "";
+        .catch(function() {
+          uploadingFiles[docType][file.name] = "error";
+          renderDocStatus(docType);
         });
       };
       reader.onerror = function() {
-        setUploadStatus(docType, "error", "Could not read file.");
+        uploadingFiles[docType][file.name] = "error";
+        renderDocStatus(docType);
       };
       reader.readAsDataURL(file);
     }
@@ -1341,7 +1410,15 @@
           var list = uploadedFiles[docType] || [];
           var remaining = MAX_FILES_PER_TYPE - list.length;
           if (remaining <= 0) {
-            setUploadStatus(docType, "error", "Max " + MAX_FILES_PER_TYPE + " files per category.");
+            var statusEl = document.getElementById("status-" + docType);
+            if (statusEl) {
+              statusEl.classList.remove("hidden");
+              var errSpan = document.createElement("span");
+              errSpan.className = "upload-msg error-msg";
+              errSpan.textContent = "Max " + MAX_FILES_PER_TYPE + " files per category.";
+              statusEl.appendChild(errSpan);
+              setTimeout(function() { if (errSpan.parentNode) errSpan.parentNode.removeChild(errSpan); }, 3000);
+            }
             fileInput.value = "";
             return;
           }
