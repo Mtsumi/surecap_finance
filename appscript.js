@@ -207,15 +207,17 @@ function handleFormSubmit(data) {
       data.creditCards, data.personalLoan, data.autoLoan, data.studentLoan,
       data.surecapLoanInterest, data.totalDebtExpenses, data.dti,
       // Section 5
-      data.stocksInvestments, data.prop1Value, data.prop2Value, data.prop3Value,
+      data.stocksInvestments, data.prop1Value, data.prop2Value, data.prop3Value, data.prop4Value, data.prop5Value,
       data.otherAssets, data.totalAssets,
       // Section 6
       data.ccDebt, data.lineOfCredit, data.personalLoansLiab,
-      data.mortgage1, data.mortgage2, data.mortgage3, data.totalDebt, data.netWorth,
+      data.mortgage1, data.mortgage2, data.mortgage3, data.mortgage4, data.mortgage5, data.totalDebt, data.netWorth,
       // Section 7
       data.prop1Address, data.prop1MarketValue, data.prop1Mortgage, data.prop1Equity, data.prop1LTV,
       data.prop2Address, data.prop2MarketValue, data.prop2Mortgage, data.prop2Equity, data.prop2LTV,
       data.prop3Address, data.prop3MarketValue, data.prop3Mortgage, data.prop3Equity, data.prop3LTV,
+      data.prop4Address, data.prop4MarketValue, data.prop4Mortgage, data.prop4Equity, data.prop4LTV,
+      data.prop5Address, data.prop5MarketValue, data.prop5Mortgage, data.prop5Equity, data.prop5LTV,
       // Section 8 — individual doc columns (multiple links newline-separated)
       (docLinksArray(dl.utilities).join("\n")        || "—"),
       (docLinksArray(dl.pay_stubs).join("\n")       || "—"),
@@ -230,8 +232,9 @@ function handleFormSubmit(data) {
       data.submissionDate, data.borrowerNameSigned, data.signatureImage
     ];
 
-    // Sanity check — should always be 78. If not, headers/row are out of sync.
-    Logger.log("Row length: " + row.length + " (expected 78)");
+    // Sanity check — should always be 92. Headers have 94 because Submission ID
+    // and Signature Status (cols 93-94) are written separately after appendRow.
+    Logger.log("Row length: " + row.length + " (expected 92; setupHeaders total = 94)");
     sheet.appendRow(row);
 
     // ── Build PDF (non-blocking — data is already saved if this fails) ──────
@@ -547,6 +550,8 @@ function buildApplicationDoc(data) {
   docField(body, "Property 1 Value",        "$" + fmt(data.prop1Value));
   if (data.prop2Value) docField(body, "Property 2 Value", "$" + fmt(data.prop2Value));
   if (data.prop3Value) docField(body, "Property 3 Value", "$" + fmt(data.prop3Value));
+  if (data.prop4Value) docField(body, "Property 4 Value", "$" + fmt(data.prop4Value));
+  if (data.prop5Value) docField(body, "Property 5 Value", "$" + fmt(data.prop5Value));
   docField(body, "Other Assets",            "$" + fmt(data.otherAssets));
   docField(body, "Total Assets",            "$" + fmt(data.totalAssets));
 
@@ -565,7 +570,9 @@ function buildApplicationDoc(data) {
   var propData = [
     { addr: data.prop1Address, market: data.prop1MarketValue, mort: data.prop1Mortgage, equity: data.prop1Equity, ltv: data.prop1LTV },
     { addr: data.prop2Address, market: data.prop2MarketValue, mort: data.prop2Mortgage, equity: data.prop2Equity, ltv: data.prop2LTV },
-    { addr: data.prop3Address, market: data.prop3MarketValue, mort: data.prop3Mortgage, equity: data.prop3Equity, ltv: data.prop3LTV }
+    { addr: data.prop3Address, market: data.prop3MarketValue, mort: data.prop3Mortgage, equity: data.prop3Equity, ltv: data.prop3LTV },
+    { addr: data.prop4Address, market: data.prop4MarketValue, mort: data.prop4Mortgage, equity: data.prop4Equity, ltv: data.prop4LTV },
+    { addr: data.prop5Address, market: data.prop5MarketValue, mort: data.prop5Mortgage, equity: data.prop5Equity, ltv: data.prop5LTV }
   ];
   var hasProps = propData.some(function(p) { return p.addr || p.market; });
   if (hasProps) {
@@ -706,16 +713,18 @@ function setupHeaders() {
     "Student Loan ($)", "SureCap Interest ($)",
     "Total Debt Expenses ($)", "DTI (%)",
     // Section 5
-    "Stocks & Investments ($)", "Prop 1 Value ($)", "Prop 2 Value ($)", "Prop 3 Value ($)",
+    "Stocks & Investments ($)", "Prop 1 Value ($)", "Prop 2 Value ($)", "Prop 3 Value ($)", "Prop 4 Value ($)", "Prop 5 Value ($)",
     "Other Assets ($)", "Total Assets ($)",
     // Section 6
     "CC Debt ($)", "Line of Credit ($)", "Personal Loans ($)",
-    "Mortgage Prop 1 ($)", "Mortgage Prop 2 ($)", "Mortgage Prop 3 ($)",
+    "Mortgage Prop 1 ($)", "Mortgage Prop 2 ($)", "Mortgage Prop 3 ($)", "Mortgage Prop 4 ($)", "Mortgage Prop 5 ($)",
     "Total Debt ($)", "Net Worth ($)",
     // Section 7
     "Prop 1 Address", "Prop 1 Market Value ($)", "Prop 1 Mortgage ($)", "Prop 1 Equity ($)", "Prop 1 LTV (%)",
     "Prop 2 Address", "Prop 2 Market Value ($)", "Prop 2 Mortgage ($)", "Prop 2 Equity ($)", "Prop 2 LTV (%)",
     "Prop 3 Address", "Prop 3 Market Value ($)", "Prop 3 Mortgage ($)", "Prop 3 Equity ($)", "Prop 3 LTV (%)",
+    "Prop 4 Address", "Prop 4 Market Value ($)", "Prop 4 Mortgage ($)", "Prop 4 Equity ($)", "Prop 4 LTV (%)",
+    "Prop 5 Address", "Prop 5 Market Value ($)", "Prop 5 Mortgage ($)", "Prop 5 Equity ($)", "Prop 5 LTV (%)",
     // Section 8 — individual doc columns
     "Doc: Utilities (Link)",
     "Doc: Pay Stubs (Link)",

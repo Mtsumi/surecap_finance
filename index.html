@@ -456,6 +456,28 @@
 
     .doc-size-note { font-size: 11px; color: #9aa0b8; margin-top: 6px; }
 
+    .prop-block--hidden { display: none; }
+
+    .prop-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+    }
+
+    .remove-prop-btn {
+      background: none;
+      border: none;
+      color: #c0392b;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .remove-prop-btn:hover { background: #fff0ef; }
+
     /* ── Selfie / identity capture ── */
     .selfie-container {
       border-radius: 8px;
@@ -743,6 +765,8 @@
               <div class="form-field"><label for="prop1Value">Property 1 Value ($)</label><input id="prop1Value" name="prop1Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="prop2Value">Property 2 Value ($)</label><input id="prop2Value" name="prop2Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="prop3Value">Property 3 Value ($)</label><input id="prop3Value" name="prop3Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop4Value">Property 4 Value ($)</label><input id="prop4Value" name="prop4Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="prop5Value">Property 5 Value ($)</label><input id="prop5Value" name="prop5Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
             </div>
             <div class="form-grid">
               <div class="form-field">
@@ -763,6 +787,8 @@
               <div class="form-field"><label for="mortgage1">Total Mortgages Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="mortgage2">Total Mortgages Property 2 ($)</label><input id="mortgage2" name="mortgage2" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="mortgage3">Total Mortgages Property 3 ($)</label><input id="mortgage3" name="mortgage3" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="mortgage4">Total Mortgages Property 4 ($)</label><input id="mortgage4" name="mortgage4" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="mortgage5">Total Mortgages Property 5 ($)</label><input id="mortgage5" name="mortgage5" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
             </div>
             <div class="form-grid two-col">
               <div class="form-field">
@@ -781,43 +807,103 @@
 
           <section class="form-step" data-step="7">
             <h2 class="section-title">Property Details</h2>
-            <p class="section-description">Details for up to three properties. Leave blank if not applicable.</p>
-            <div class="pill">Property 1</div>
-            <div class="form-grid two-col" style="margin-top:8px;">
-              <div class="form-field"><label for="prop1Civic">Civic Number</label><input id="prop1Civic" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1Street">Street Name</label><input id="prop1Street" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1City">City</label><input id="prop1City" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1Postal">Postal Code</label><input id="prop1Postal" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1Lot">Lot Number</label><input id="prop1Lot" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1MarketValue">Property Market Value ($)</label><input id="prop1MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1Mortgage">Total Mortgage Amount ($)</label><input id="prop1Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1Equity">Equity ($)</label><input id="prop1Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1LTV">Debt-to-Value Ratio (%)</label><input id="prop1LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+            <p class="section-description">Enter details for your primary property. You can add up to four more.</p>
+
+            <!-- Property 1 — always visible -->
+            <div id="propBlock1">
+              <div class="pill">Property 1</div>
+              <div class="form-grid two-col" style="margin-top:8px;">
+                <div class="form-field"><label for="prop1Civic">Civic Number</label><input id="prop1Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Street">Street Name</label><input id="prop1Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1City">City</label><input id="prop1City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Postal">Postal Code</label><input id="prop1Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Lot">Lot Number</label><input id="prop1Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1MarketValue">Property Market Value ($)</label><input id="prop1MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Mortgage">Total Mortgage Amount ($)</label><input id="prop1Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Equity">Equity ($)</label><input id="prop1Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1LTV">Debt-to-Value Ratio (%)</label><input id="prop1LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              </div>
             </div>
-            <div class="pill" style="margin-top:18px;">Property 2</div>
-            <div class="form-grid two-col" style="margin-top:8px;">
-              <div class="form-field"><label for="prop2Civic">Civic Number</label><input id="prop2Civic" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2Street">Street Name</label><input id="prop2Street" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2City">City</label><input id="prop2City" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2Postal">Postal Code</label><input id="prop2Postal" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2Lot">Lot Number</label><input id="prop2Lot" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2MarketValue">Property Market Value ($)</label><input id="prop2MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2Mortgage">Total Mortgage Amount ($)</label><input id="prop2Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2Equity">Equity ($)</label><input id="prop2Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2LTV">Debt-to-Value Ratio (%)</label><input id="prop2LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+
+            <!-- Property 2 — hidden until added -->
+            <div id="propBlock2" class="prop-block prop-block--hidden">
+              <div class="prop-block-header">
+                <div class="pill">Property 2</div>
+                <button type="button" class="remove-prop-btn" data-prop="2">&#10005; Remove</button>
+              </div>
+              <div class="form-grid two-col" style="margin-top:8px;">
+                <div class="form-field"><label for="prop2Civic">Civic Number</label><input id="prop2Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Street">Street Name</label><input id="prop2Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2City">City</label><input id="prop2City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Postal">Postal Code</label><input id="prop2Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Lot">Lot Number</label><input id="prop2Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2MarketValue">Property Market Value ($)</label><input id="prop2MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Mortgage">Total Mortgage Amount ($)</label><input id="prop2Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Equity">Equity ($)</label><input id="prop2Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2LTV">Debt-to-Value Ratio (%)</label><input id="prop2LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              </div>
             </div>
-            <div class="pill" style="margin-top:18px;">Property 3</div>
-            <div class="form-grid two-col" style="margin-top:8px;">
-              <div class="form-field"><label for="prop3Civic">Civic Number</label><input id="prop3Civic" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3Street">Street Name</label><input id="prop3Street" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3City">City</label><input id="prop3City" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3Postal">Postal Code</label><input id="prop3Postal" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3Lot">Lot Number</label><input id="prop3Lot" type="text" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3MarketValue">Property Market Value ($)</label><input id="prop3MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3Mortgage">Total Mortgage Amount ($)</label><input id="prop3Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3Equity">Equity ($)</label><input id="prop3Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3LTV">Debt-to-Value Ratio (%)</label><input id="prop3LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+
+            <!-- Property 3 — hidden until added -->
+            <div id="propBlock3" class="prop-block prop-block--hidden">
+              <div class="prop-block-header">
+                <div class="pill">Property 3</div>
+                <button type="button" class="remove-prop-btn" data-prop="3">&#10005; Remove</button>
+              </div>
+              <div class="form-grid two-col" style="margin-top:8px;">
+                <div class="form-field"><label for="prop3Civic">Civic Number</label><input id="prop3Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Street">Street Name</label><input id="prop3Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3City">City</label><input id="prop3City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Postal">Postal Code</label><input id="prop3Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Lot">Lot Number</label><input id="prop3Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3MarketValue">Property Market Value ($)</label><input id="prop3MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Mortgage">Total Mortgage Amount ($)</label><input id="prop3Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Equity">Equity ($)</label><input id="prop3Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3LTV">Debt-to-Value Ratio (%)</label><input id="prop3LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              </div>
             </div>
+
+            <!-- Property 4 — hidden until added -->
+            <div id="propBlock4" class="prop-block prop-block--hidden">
+              <div class="prop-block-header">
+                <div class="pill">Property 4</div>
+                <button type="button" class="remove-prop-btn" data-prop="4">&#10005; Remove</button>
+              </div>
+              <div class="form-grid two-col" style="margin-top:8px;">
+                <div class="form-field"><label for="prop4Civic">Civic Number</label><input id="prop4Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Street">Street Name</label><input id="prop4Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4City">City</label><input id="prop4City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Postal">Postal Code</label><input id="prop4Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Lot">Lot Number</label><input id="prop4Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4MarketValue">Property Market Value ($)</label><input id="prop4MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Mortgage">Total Mortgage Amount ($)</label><input id="prop4Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Equity">Equity ($)</label><input id="prop4Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4LTV">Debt-to-Value Ratio (%)</label><input id="prop4LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              </div>
+            </div>
+
+            <!-- Property 5 — hidden until added -->
+            <div id="propBlock5" class="prop-block prop-block--hidden">
+              <div class="prop-block-header">
+                <div class="pill">Property 5</div>
+                <button type="button" class="remove-prop-btn" data-prop="5">&#10005; Remove</button>
+              </div>
+              <div class="form-grid two-col" style="margin-top:8px;">
+                <div class="form-field"><label for="prop5Civic">Civic Number</label><input id="prop5Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Street">Street Name</label><input id="prop5Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5City">City</label><input id="prop5City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Postal">Postal Code</label><input id="prop5Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Lot">Lot Number</label><input id="prop5Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5MarketValue">Property Market Value ($)</label><input id="prop5MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Mortgage">Total Mortgage Amount ($)</label><input id="prop5Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Equity">Equity ($)</label><input id="prop5Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5LTV">Debt-to-Value Ratio (%)</label><input id="prop5LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+              </div>
+            </div>
+
+            <button type="button" id="addPropertyBtn" class="btn btn-outline" style="margin-top:20px; font-size:14px; padding:10px 20px; min-height:40px;">
+              + Add another property
+            </button>
           </section>
 
           <section class="form-step" data-step="8">
@@ -1074,13 +1160,13 @@
     }
 
     function recalcAssets() {
-      const total = parseCurrency(getValue("stocksInvestments")) + parseCurrency(getValue("prop1Value")) + parseCurrency(getValue("prop2Value")) + parseCurrency(getValue("prop3Value")) + parseCurrency(getValue("otherAssets"));
+      const total = parseCurrency(getValue("stocksInvestments")) + parseCurrency(getValue("prop1Value")) + parseCurrency(getValue("prop2Value")) + parseCurrency(getValue("prop3Value")) + parseCurrency(getValue("prop4Value")) + parseCurrency(getValue("prop5Value")) + parseCurrency(getValue("otherAssets"));
       getInput("totalAssets").value = total ? formatNumber(total) : "";
       return total;
     }
 
     function recalcLiabilities() {
-      const total = parseCurrency(getValue("ccDebt")) + parseCurrency(getValue("lineOfCredit")) + parseCurrency(getValue("personalLoansLiab")) + parseCurrency(getValue("mortgage1")) + parseCurrency(getValue("mortgage2")) + parseCurrency(getValue("mortgage3"));
+      const total = parseCurrency(getValue("ccDebt")) + parseCurrency(getValue("lineOfCredit")) + parseCurrency(getValue("personalLoansLiab")) + parseCurrency(getValue("mortgage1")) + parseCurrency(getValue("mortgage2")) + parseCurrency(getValue("mortgage3")) + parseCurrency(getValue("mortgage4")) + parseCurrency(getValue("mortgage5"));
       getInput("totalDebt").value = total ? formatNumber(total) : "";
       return total;
     }
@@ -1224,7 +1310,7 @@
         input.addEventListener("input", recalcAll);
         input.addEventListener("blur", function() { formatCurrencyInput(input); recalcAll(); });
       });
-      [1, 2, 3].forEach(function(idx) {
+      [1, 2, 3, 4, 5].forEach(function(idx) {
         var market = document.getElementById("prop" + idx + "MarketValue");
         var mortgage = document.getElementById("prop" + idx + "Mortgage");
         if (market) { market.addEventListener("input", function() { recalcPropertyEquity(idx); recalcAssets(); recalcNetWorth(); }); market.addEventListener("blur", function() { formatCurrencyInput(market); recalcPropertyEquity(idx); recalcAssets(); recalcNetWorth(); }); }
@@ -1430,6 +1516,40 @@
     });
     // ── End document upload ────────────────────────────────
 
+    // ── Property add / remove ─────────────────────────────
+    (function() {
+      var MAX_PROPS  = 5;
+      var propCount  = 1;
+      var addBtn     = document.getElementById("addPropertyBtn");
+
+      function clearPropBlock(n) {
+        var block = document.getElementById("propBlock" + n);
+        if (!block) return;
+        block.querySelectorAll("input").forEach(function(inp) {
+          inp.value = "";
+          inp.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        block.classList.add("prop-block--hidden");
+      }
+
+      addBtn.addEventListener("click", function() {
+        if (propCount >= MAX_PROPS) return;
+        propCount++;
+        document.getElementById("propBlock" + propCount).classList.remove("prop-block--hidden");
+        if (propCount >= MAX_PROPS) addBtn.style.display = "none";
+      });
+
+      document.querySelectorAll(".remove-prop-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var fromProp = parseInt(this.getAttribute("data-prop"), 10);
+          for (var i = fromProp; i <= MAX_PROPS; i++) clearPropBlock(i);
+          propCount = fromProp - 1;
+          addBtn.style.display = "";
+        });
+      });
+    })();
+    // ── End property add / remove ──────────────────────────
+
     function buildPropertyAddress(idx) {
       var parts = [];
       var civic = getValue("prop" + idx + "Civic");
@@ -1458,6 +1578,10 @@
       var prop2Mortgage = parseCurrency(getValue("prop2Mortgage"));
       var prop3Market = parseCurrency(getValue("prop3MarketValue"));
       var prop3Mortgage = parseCurrency(getValue("prop3Mortgage"));
+      var prop4Market = parseCurrency(getValue("prop4MarketValue"));
+      var prop4Mortgage = parseCurrency(getValue("prop4Mortgage"));
+      var prop5Market = parseCurrency(getValue("prop5MarketValue"));
+      var prop5Mortgage = parseCurrency(getValue("prop5Mortgage"));
 
       return {
         name: getValue("name"), address: getValue("address"), cellPhone: getValue("cellPhone"), otherPhone: getValue("otherPhone"), email: getValue("email"),
@@ -1472,14 +1596,16 @@
         childSupport: parseCurrency(getValue("childSupport")), otherObligations: parseCurrency(getValue("otherObligations")), totalMonthlyObligations: totalMonthlyObligations,
         creditCards: parseCurrency(getValue("creditCards")), personalLoan: parseCurrency(getValue("personalLoan")), autoLoan: parseCurrency(getValue("autoLoan")),
         studentLoan: parseCurrency(getValue("studentLoan")), surecapLoanInterest: parseCurrency(getValue("surecapLoanInterest")), totalDebtExpenses: totalDebtExpenses, dti: dti,
-        stocksInvestments: parseCurrency(getValue("stocksInvestments")), prop1Value: prop1Market, prop2Value: prop2Market, prop3Value: prop3Market,
+        stocksInvestments: parseCurrency(getValue("stocksInvestments")), prop1Value: prop1Market, prop2Value: prop2Market, prop3Value: prop3Market, prop4Value: prop4Market, prop5Value: prop5Market,
         otherAssets: parseCurrency(getValue("otherAssets")), totalAssets: totalAssets,
         ccDebt: parseCurrency(getValue("ccDebt")), lineOfCredit: parseCurrency(getValue("lineOfCredit")), personalLoansLiab: parseCurrency(getValue("personalLoansLiab")),
-        mortgage1: parseCurrency(getValue("mortgage1")), mortgage2: parseCurrency(getValue("mortgage2")), mortgage3: parseCurrency(getValue("mortgage3")),
+        mortgage1: parseCurrency(getValue("mortgage1")), mortgage2: parseCurrency(getValue("mortgage2")), mortgage3: parseCurrency(getValue("mortgage3")), mortgage4: parseCurrency(getValue("mortgage4")), mortgage5: parseCurrency(getValue("mortgage5")),
         totalDebt: totalDebt, netWorth: netWorth,
         prop1Address: buildPropertyAddress(1), prop1MarketValue: prop1Market, prop1Mortgage: prop1Mortgage, prop1Equity: prop1Market - prop1Mortgage, prop1LTV: prop1Market > 0 ? ((prop1Mortgage / prop1Market) * 100).toFixed(1) : "",
         prop2Address: buildPropertyAddress(2), prop2MarketValue: prop2Market, prop2Mortgage: prop2Mortgage, prop2Equity: prop2Market - prop2Mortgage, prop2LTV: prop2Market > 0 ? ((prop2Mortgage / prop2Market) * 100).toFixed(1) : "",
         prop3Address: buildPropertyAddress(3), prop3MarketValue: prop3Market, prop3Mortgage: prop3Mortgage, prop3Equity: prop3Market - prop3Mortgage, prop3LTV: prop3Market > 0 ? ((prop3Mortgage / prop3Market) * 100).toFixed(1) : "",
+        prop4Address: buildPropertyAddress(4), prop4MarketValue: prop4Market, prop4Mortgage: prop4Mortgage, prop4Equity: prop4Market - prop4Mortgage, prop4LTV: prop4Market > 0 ? ((prop4Mortgage / prop4Market) * 100).toFixed(1) : "",
+        prop5Address: buildPropertyAddress(5), prop5MarketValue: prop5Market, prop5Mortgage: prop5Mortgage, prop5Equity: prop5Market - prop5Mortgage, prop5LTV: prop5Market > 0 ? ((prop5Mortgage / prop5Market) * 100).toFixed(1) : "",
         docLinks: (function() {
           var out = {};
           DOC_TYPES.forEach(function(t) { out[t] = (uploadedFiles[t] || []).map(function(f) { return f.link; }); });
