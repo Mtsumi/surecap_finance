@@ -416,14 +416,14 @@ function handleDocusealWebhook(data) {
   if (!signerEmail && subData.submitters && subData.submitters[0]) signerEmail = subData.submitters[0].email;
 
   var pdfResponse = UrlFetchApp.fetch(docUrl, { muteHttpExceptions: true });
-  var signedPdfBlob = pdfResponse.getBlob().setName("Signed_Loan_Agreement.pdf");
+  var signedPdfBlob = pdfResponse.getBlob().setName("Signed_Loan_Application.pdf");
 
   var signedBody = "Dear Applicant,\n\nThank you for completing your loan application with " + COMPANY_NAME + ".\n\nPlease find your signed loan agreement attached. Our team will be in touch shortly.\n\nSincerely,\n" + COMPANY_NAME + " Team";
 
   if (signerEmail) {
     MailApp.sendEmail({
       to:       signerEmail,
-      subject:  "Your " + COMPANY_NAME + " loan agreement — signed copy",
+      subject:  "Your " + COMPANY_NAME + " loan application — signed copy",
       body:     signedBody,
       replyTo:  LENDER_EMAIL,
       attachments: [signedPdfBlob]
@@ -432,7 +432,7 @@ function handleDocusealWebhook(data) {
 
   MailApp.sendEmail({
     to:       LENDER_EMAIL,
-    subject:  "Signed loan agreement received — " + (signerEmail || "applicant"),
+    subject:  "Signed loan application received — " + (signerEmail || "applicant"),
     body:     "A loan application has been signed by " + (signerEmail || "applicant") + ". Please find the signed agreement attached.",
     attachments: [signedPdfBlob]
   });
@@ -489,7 +489,7 @@ function buildApplicationDoc(data) {
   var titleP = body.appendParagraph("LOAN APPLICATION");
   titleP.setHeading(DocumentApp.ParagraphHeading.HEADING1);
   titleP.setFontSize(14);  // Smaller than logo so logo stays dominant
-  titleP.setAlignment(DocumentApp.HorizontalAlignment.LEFT);
+  titleP.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
 
   docField(body, "Submission Date", data.submissionDate);
   docField(body, "Prepared for",    data.name);
