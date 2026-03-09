@@ -465,7 +465,15 @@
       margin-top: 18px;
     }
 
-    .remove-prop-btn {
+    .prop-value-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .prop-value-header label { margin-bottom: 0; }
+
+    .remove-prop-btn, .remove-prop-value-btn {
       background: none;
       border: none;
       color: #c0392b;
@@ -476,7 +484,7 @@
       border-radius: 6px;
       transition: background 0.15s;
     }
-    .remove-prop-btn:hover { background: #fff0ef; }
+    .remove-prop-btn:hover, .remove-prop-value-btn:hover { background: #fff0ef; }
 
     /* ── Selfie / identity capture ── */
     .selfie-container {
@@ -762,12 +770,29 @@
             <div class="form-grid two-col">
               <div class="form-field"><label for="stocksInvestments">Stocks and Investments ($)</label><input id="stocksInvestments" name="stocksInvestments" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="otherAssets">Other Assets ($)</label><input id="otherAssets" name="otherAssets" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop1Value">Property 1 Value ($)</label><input id="prop1Value" name="prop1Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop2Value">Property 2 Value ($)</label><input id="prop2Value" name="prop2Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop3Value">Property 3 Value ($)</label><input id="prop3Value" name="prop3Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop4Value">Property 4 Value ($)</label><input id="prop4Value" name="prop4Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="prop5Value">Property 5 Value ($)</label><input id="prop5Value" name="prop5Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <!-- Property 1 — always visible -->
+              <div class="form-field" id="propValueBlock1"><label for="prop1Value">Property 1 Value ($)</label><input id="prop1Value" name="prop1Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <!-- Properties 2–5 — hidden until added -->
+              <div class="form-field prop-block prop-block--hidden" id="propValueBlock2">
+                <div class="prop-value-header"><label for="prop2Value">Property 2 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="2">&#10005;</button></div>
+                <input id="prop2Value" name="prop2Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
+              <div class="form-field prop-block prop-block--hidden" id="propValueBlock3">
+                <div class="prop-value-header"><label for="prop3Value">Property 3 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="3">&#10005;</button></div>
+                <input id="prop3Value" name="prop3Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
+              <div class="form-field prop-block prop-block--hidden" id="propValueBlock4">
+                <div class="prop-value-header"><label for="prop4Value">Property 4 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="4">&#10005;</button></div>
+                <input id="prop4Value" name="prop4Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
+              <div class="form-field prop-block prop-block--hidden" id="propValueBlock5">
+                <div class="prop-value-header"><label for="prop5Value">Property 5 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="5">&#10005;</button></div>
+                <input id="prop5Value" name="prop5Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
             </div>
+            <button type="button" id="addPropValueBtn" class="btn btn-outline" style="margin-top:12px; font-size:14px; padding:10px 20px; min-height:40px;">
+              + Add another property
+            </button>
             <div class="form-grid">
               <div class="form-field">
                 <label for="totalAssets">Total Assets ($)</label>
@@ -784,12 +809,29 @@
               <div class="form-field"><label for="ccDebt">Credit Card Debt ($)</label><input id="ccDebt" name="ccDebt" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="lineOfCredit">Line of Credit ($)</label><input id="lineOfCredit" name="lineOfCredit" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="personalLoansLiab">Personal Loans ($)</label><input id="personalLoansLiab" name="personalLoansLiab" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="mortgage1">Total Mortgages Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="mortgage2">Total Mortgages Property 2 ($)</label><input id="mortgage2" name="mortgage2" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="mortgage3">Total Mortgages Property 3 ($)</label><input id="mortgage3" name="mortgage3" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="mortgage4">Total Mortgages Property 4 ($)</label><input id="mortgage4" name="mortgage4" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="mortgage5">Total Mortgages Property 5 ($)</label><input id="mortgage5" name="mortgage5" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <!-- Mortgage 1 — always visible -->
+              <div class="form-field" id="mortgageBlock1"><label for="mortgage1">Mortgage — Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <!-- Mortgages 2–5 — hidden until added -->
+              <div class="form-field prop-block prop-block--hidden" id="mortgageBlock2">
+                <div class="prop-value-header"><label for="mortgage2">Mortgage — Property 2 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="2">&#10005;</button></div>
+                <input id="mortgage2" name="mortgage2" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
+              <div class="form-field prop-block prop-block--hidden" id="mortgageBlock3">
+                <div class="prop-value-header"><label for="mortgage3">Mortgage — Property 3 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="3">&#10005;</button></div>
+                <input id="mortgage3" name="mortgage3" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
+              <div class="form-field prop-block prop-block--hidden" id="mortgageBlock4">
+                <div class="prop-value-header"><label for="mortgage4">Mortgage — Property 4 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="4">&#10005;</button></div>
+                <input id="mortgage4" name="mortgage4" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
+              <div class="form-field prop-block prop-block--hidden" id="mortgageBlock5">
+                <div class="prop-value-header"><label for="mortgage5">Mortgage — Property 5 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="5">&#10005;</button></div>
+                <input id="mortgage5" name="mortgage5" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
+              </div>
             </div>
+            <button type="button" id="addMortgageBtn" class="btn btn-outline" style="margin-top:12px; font-size:14px; padding:10px 20px; min-height:40px;">
+              + Add another mortgage
+            </button>
             <div class="form-grid two-col">
               <div class="form-field">
                 <label for="totalDebt">Total Debt ($)</label>
@@ -1549,6 +1591,70 @@
       });
     })();
     // ── End property add / remove ──────────────────────────
+
+    // ── Property value add / remove (Section 5 Assets) ────
+    (function() {
+      var MAX_PV   = 5;
+      var pvCount  = 1;
+      var addBtn   = document.getElementById("addPropValueBtn");
+
+      function clearPropValueBlock(n) {
+        var block = document.getElementById("propValueBlock" + n);
+        if (!block) return;
+        var inp = document.getElementById("prop" + n + "Value");
+        if (inp) { inp.value = ""; inp.dispatchEvent(new Event("input", { bubbles: true })); }
+        block.classList.add("prop-block--hidden");
+      }
+
+      addBtn.addEventListener("click", function() {
+        if (pvCount >= MAX_PV) return;
+        pvCount++;
+        document.getElementById("propValueBlock" + pvCount).classList.remove("prop-block--hidden");
+        if (pvCount >= MAX_PV) addBtn.style.display = "none";
+      });
+
+      document.querySelectorAll(".remove-prop-value-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var fromPV = parseInt(this.getAttribute("data-pv"), 10);
+          for (var i = fromPV; i <= MAX_PV; i++) clearPropValueBlock(i);
+          pvCount = fromPV - 1;
+          addBtn.style.display = "";
+        });
+      });
+    })();
+    // ── End property value add / remove ───────────────────
+
+    // ── Mortgage add / remove (Section 6 Liabilities) ─────
+    (function() {
+      var MAX_MG  = 5;
+      var mgCount = 1;
+      var addBtn  = document.getElementById("addMortgageBtn");
+
+      function clearMortgageBlock(n) {
+        var block = document.getElementById("mortgageBlock" + n);
+        if (!block) return;
+        var inp = document.getElementById("mortgage" + n);
+        if (inp) { inp.value = ""; inp.dispatchEvent(new Event("input", { bubbles: true })); }
+        block.classList.add("prop-block--hidden");
+      }
+
+      addBtn.addEventListener("click", function() {
+        if (mgCount >= MAX_MG) return;
+        mgCount++;
+        document.getElementById("mortgageBlock" + mgCount).classList.remove("prop-block--hidden");
+        if (mgCount >= MAX_MG) addBtn.style.display = "none";
+      });
+
+      document.querySelectorAll(".remove-prop-value-btn[data-mg]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var fromMG = parseInt(this.getAttribute("data-mg"), 10);
+          for (var i = fromMG; i <= MAX_MG; i++) clearMortgageBlock(i);
+          mgCount = fromMG - 1;
+          addBtn.style.display = "";
+        });
+      });
+    })();
+    // ── End mortgage add / remove ──────────────────────────
 
     function buildPropertyAddress(idx) {
       var parts = [];

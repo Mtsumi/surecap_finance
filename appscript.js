@@ -421,6 +421,19 @@ function handleDocusealWebhook(data) {
   var pdfResponse = UrlFetchApp.fetch(docUrl, { muteHttpExceptions: true });
   var signedPdfBlob = pdfResponse.getBlob().setName("Signed_Loan_Application.pdf");
 
+  // Fetch audit log if DocuSeal provided one (available once all submitters are done)
+  var lenderAttachments = [signedPdfBlob];
+  var auditLogUrl = subData.audit_log_url || null;
+  if (auditLogUrl) {
+    try {
+      var auditBlob = UrlFetchApp.fetch(auditLogUrl, { muteHttpExceptions: true })
+                                  .getBlob().setName("Audit_Log.pdf");
+      lenderAttachments.push(auditBlob);
+    } catch (auditErr) {
+      Logger.log("Could not fetch audit log: " + auditErr);
+    }
+  }
+
   var signedBody = "Dear Applicant,\n\nThank you for completing your loan application with " + COMPANY_NAME + ".\n\nPlease find your signed loan agreement attached. Our team will be in touch shortly.\n\nSincerely,\n" + COMPANY_NAME + " Team";
 
   if (signerEmail) {
@@ -436,8 +449,8 @@ function handleDocusealWebhook(data) {
   MailApp.sendEmail({
     to:       LENDER_EMAIL,
     subject:  "Signed loan application received — " + (signerEmail || "applicant"),
-    body:     "A loan application has been signed by " + (signerEmail || "applicant") + ". Please find the signed agreement attached.",
-    attachments: [signedPdfBlob]
+    body:     "A loan application has been signed by " + (signerEmail || "applicant") + ". Please find the signed agreement and audit log attached.",
+    attachments: lenderAttachments
   });
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
