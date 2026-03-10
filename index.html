@@ -1016,8 +1016,8 @@
                       <input type="checkbox" id="chk-utilities" />
                       <span data-i18n="doc_utilities">Utilities</span>
                     </div>
-                    <label class="file-pick-btn" for="file-utilities" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-utilities">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-utilities" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="utilities" multiple />
                     </label>
                   </div>
@@ -1031,8 +1031,8 @@
                       <input type="checkbox" id="chk-pay_stubs" />
                       <span data-i18n="doc_pay_stubs">Pay stubs / proof of income</span>
                     </div>
-                    <label class="file-pick-btn" for="file-pay_stubs" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-pay_stubs">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-pay_stubs" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="pay_stubs" multiple />
                     </label>
                   </div>
@@ -1046,8 +1046,8 @@
                       <input type="checkbox" id="chk-gov_assessments" />
                       <span data-i18n="doc_gov_assessments">Government assessments (3 years)</span>
                     </div>
-                    <label class="file-pick-btn" for="file-gov_assessments" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-gov_assessments">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-gov_assessments" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="gov_assessments" multiple />
                     </label>
                   </div>
@@ -1061,8 +1061,8 @@
                       <input type="checkbox" id="chk-tax_bills" />
                       <span data-i18n="doc_tax_bills">Municipal tax bills</span>
                     </div>
-                    <label class="file-pick-btn" for="file-tax_bills" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-tax_bills">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-tax_bills" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="tax_bills" multiple />
                     </label>
                   </div>
@@ -1076,8 +1076,8 @@
                       <input type="checkbox" id="chk-condo_fees" />
                       <span data-i18n="doc_condo_fees">Condo fees</span>
                     </div>
-                    <label class="file-pick-btn" for="file-condo_fees" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-condo_fees">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-condo_fees" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="condo_fees" multiple />
                     </label>
                   </div>
@@ -1091,8 +1091,8 @@
                       <input type="checkbox" id="chk-loan_contracts" />
                       <span data-i18n="doc_loan_contracts">Other loan contracts and interest statements</span>
                     </div>
-                    <label class="file-pick-btn" for="file-loan_contracts" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-loan_contracts">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-loan_contracts" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="loan_contracts" multiple />
                     </label>
                   </div>
@@ -1106,8 +1106,8 @@
                       <input type="checkbox" id="chk-credit_report" />
                       <span data-i18n="doc_credit_report">Credit report</span>
                     </div>
-                    <label class="file-pick-btn" for="file-credit_report" data-i18n="btn_choose_file">
-                      &#128206; Choose file
+                    <label class="file-pick-btn" for="file-credit_report">
+                      <span data-i18n="btn_choose_file">&#128206; Choose file</span>
                       <input type="file" id="file-credit_report" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="credit_report" multiple />
                     </label>
                   </div>
@@ -1376,27 +1376,29 @@
 
       // Regular data-i18n elements
       document.querySelectorAll('[data-i18n]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
-        if (!i18n[key]) return;
-        var text = i18n[key][lang];
-        // Options — use textContent to avoid HTML injection
-        if (el.tagName === 'OPTION') { el.textContent = text; return; }
-        // Labels with required asterisk — update only the leading text node
-        var requiredSpan = el.querySelector('.required');
-        if (requiredSpan) { el.childNodes[0].textContent = text; return; }
-        // Labels containing a nested <input> (file-pick-btn) — update only the text node, preserve the input
-        var nestedInput = el.tagName === 'LABEL' && el.querySelector('input');
-        if (nestedInput) {
-          // Find the first text node and update it
-          for (var i = 0; i < el.childNodes.length; i++) {
-            if (el.childNodes[i].nodeType === 3) { // TEXT_NODE
-              el.childNodes[i].textContent = text;
-              return;
+        try {
+          var key = el.getAttribute('data-i18n');
+          if (!i18n[key]) return;
+          var text = i18n[key][lang];
+          if (text === undefined) return;
+          // <option> — plain text only, no HTML injection risk
+          if (el.tagName === 'OPTION') { el.textContent = text; return; }
+          // Labels with a .required asterisk span — update only the first real
+          // text node so the span child is preserved
+          if (el.querySelector('.required')) {
+            for (var j = 0; j < el.childNodes.length; j++) {
+              if (el.childNodes[j].nodeType === 3) { // Node.TEXT_NODE
+                el.childNodes[j].nodeValue = text;
+                break;
+              }
             }
+            return;
           }
-          return;
+          // Everything else (h2, p, span, div, button, plain label …)
+          el.innerHTML = text;
+        } catch (err) {
+          // swallow so a single bad element never blocks the rest
         }
-        el.innerHTML = text;
       });
 
       // Placeholder attributes
