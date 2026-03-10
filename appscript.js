@@ -210,7 +210,7 @@ function handleFormSubmit(data) {
       data.stocksInvestments, data.prop1Value, data.prop2Value, data.prop3Value, data.prop4Value, data.prop5Value,
       data.otherAssets, data.totalAssets,
       // Section 6
-      data.ccDebt, data.lineOfCredit, data.personalLoansLiab,
+      data.ccDebt, data.lineOfCredit, data.personalLoansLiab, data.surecapLoan,
       data.mortgage1, data.mortgage2, data.mortgage3, data.mortgage4, data.mortgage5, data.totalDebt, data.netWorth,
       // Section 7
       data.prop1Address, data.prop1MarketValue, data.prop1Mortgage, data.prop1Equity, data.prop1LTV,
@@ -232,9 +232,9 @@ function handleFormSubmit(data) {
       data.submissionDate, data.borrowerNameSigned, data.signatureImage
     ];
 
-    // Sanity check — should always be 92. Headers have 94 because Submission ID
-    // and Signature Status (cols 93-94) are written separately after appendRow.
-    Logger.log("Row length: " + row.length + " (expected 92; setupHeaders total = 94)");
+    // Sanity check — should always be 93. Headers have 95 because Submission ID
+    // and Signature Status (cols 94-95) are written separately after appendRow.
+    Logger.log("Row length: " + row.length + " (expected 93; setupHeaders total = 95)");
     sheet.appendRow(row);
 
     // ── Build PDF (non-blocking — data is already saved if this fails) ──────
@@ -573,6 +573,7 @@ function buildApplicationDoc(data) {
   docField(body, "Credit Card Debt",        "$" + fmt(data.ccDebt));
   docField(body, "Line of Credit",          "$" + fmt(data.lineOfCredit));
   docField(body, "Personal Loans",          "$" + fmt(data.personalLoansLiab));
+  if (data.surecapLoan) docField(body, "SureCap Loan",   "$" + fmt(data.surecapLoan));
   docField(body, "Mortgage — Property 1",   "$" + fmt(data.mortgage1));
   if (data.mortgage2) docField(body, "Mortgage — Property 2", "$" + fmt(data.mortgage2));
   if (data.mortgage3) docField(body, "Mortgage — Property 3", "$" + fmt(data.mortgage3));
@@ -729,7 +730,7 @@ function setupHeaders() {
     "Stocks & Investments ($)", "Prop 1 Value ($)", "Prop 2 Value ($)", "Prop 3 Value ($)", "Prop 4 Value ($)", "Prop 5 Value ($)",
     "Other Assets ($)", "Total Assets ($)",
     // Section 6
-    "CC Debt ($)", "Line of Credit ($)", "Personal Loans ($)",
+    "CC Debt ($)", "Line of Credit ($)", "Personal Loans ($)", "SureCap Loan ($)",
     "Mortgage Prop 1 ($)", "Mortgage Prop 2 ($)", "Mortgage Prop 3 ($)", "Mortgage Prop 4 ($)", "Mortgage Prop 5 ($)",
     "Total Debt ($)", "Net Worth ($)",
     // Section 7

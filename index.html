@@ -809,6 +809,7 @@
               <div class="form-field"><label for="ccDebt">Credit Card Debt ($)</label><input id="ccDebt" name="ccDebt" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="lineOfCredit">Line of Credit ($)</label><input id="lineOfCredit" name="lineOfCredit" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <div class="form-field"><label for="personalLoansLiab">Personal Loans ($)</label><input id="personalLoansLiab" name="personalLoansLiab" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="surecapLoan">SureCap Loan ($)</label><input id="surecapLoan" name="surecapLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <!-- Mortgage 1 — always visible -->
               <div class="form-field" id="mortgageBlock1"><label for="mortgage1">Mortgage — Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <!-- Mortgages 2–5 — hidden until added -->
@@ -1208,7 +1209,7 @@
     }
 
     function recalcLiabilities() {
-      const total = parseCurrency(getValue("ccDebt")) + parseCurrency(getValue("lineOfCredit")) + parseCurrency(getValue("personalLoansLiab")) + parseCurrency(getValue("mortgage1")) + parseCurrency(getValue("mortgage2")) + parseCurrency(getValue("mortgage3")) + parseCurrency(getValue("mortgage4")) + parseCurrency(getValue("mortgage5"));
+      const total = parseCurrency(getValue("ccDebt")) + parseCurrency(getValue("lineOfCredit")) + parseCurrency(getValue("personalLoansLiab")) + parseCurrency(getValue("surecapLoan")) + parseCurrency(getValue("mortgage1")) + parseCurrency(getValue("mortgage2")) + parseCurrency(getValue("mortgage3")) + parseCurrency(getValue("mortgage4")) + parseCurrency(getValue("mortgage5"));
       getInput("totalDebt").value = total ? formatNumber(total) : "";
       return total;
     }
@@ -1704,7 +1705,7 @@
         studentLoan: parseCurrency(getValue("studentLoan")), surecapLoanInterest: parseCurrency(getValue("surecapLoanInterest")), totalDebtExpenses: totalDebtExpenses, dti: dti,
         stocksInvestments: parseCurrency(getValue("stocksInvestments")), prop1Value: prop1Market, prop2Value: prop2Market, prop3Value: prop3Market, prop4Value: prop4Market, prop5Value: prop5Market,
         otherAssets: parseCurrency(getValue("otherAssets")), totalAssets: totalAssets,
-        ccDebt: parseCurrency(getValue("ccDebt")), lineOfCredit: parseCurrency(getValue("lineOfCredit")), personalLoansLiab: parseCurrency(getValue("personalLoansLiab")),
+        ccDebt: parseCurrency(getValue("ccDebt")), lineOfCredit: parseCurrency(getValue("lineOfCredit")), personalLoansLiab: parseCurrency(getValue("personalLoansLiab")), surecapLoan: parseCurrency(getValue("surecapLoan")),
         mortgage1: parseCurrency(getValue("mortgage1")), mortgage2: parseCurrency(getValue("mortgage2")), mortgage3: parseCurrency(getValue("mortgage3")), mortgage4: parseCurrency(getValue("mortgage4")), mortgage5: parseCurrency(getValue("mortgage5")),
         totalDebt: totalDebt, netWorth: netWorth,
         prop1Address: buildPropertyAddress(1), prop1MarketValue: prop1Market, prop1Mortgage: prop1Mortgage, prop1Equity: prop1Market - prop1Mortgage, prop1LTV: prop1Market > 0 ? ((prop1Mortgage / prop1Market) * 100).toFixed(1) : "",
