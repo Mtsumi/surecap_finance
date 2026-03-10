@@ -37,6 +37,47 @@
     header .brand { font-size: 22px; font-weight: 600; letter-spacing: 0.04em; }
     header .subtitle { font-size: 13px; margin-top: 4px; opacity: 0.85; }
 
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      min-height: 34px;
+      letter-spacing: 0.03em;
+    }
+
+    .lang-btn.active {
+      background: rgba(255,255,255,0.18);
+      color: #ffffff;
+    }
+
+    .lang-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.9);
+    }
+
     main {
       padding: 16px;
       max-width: 960px;
@@ -589,16 +630,24 @@
 </head>
 <body>
   <header>
-    <div class="brand">Surecap Finance</div>
-    <div class="subtitle">Credit Risk &amp; Loan Application Form</div>
+    <div class="header-inner">
+      <div>
+        <div class="brand">Surecap Finance</div>
+        <div class="subtitle" data-i18n="subtitle">Credit Risk &amp; Loan Application Form</div>
+      </div>
+      <div class="lang-toggle" id="langToggle" role="group" aria-label="Language">
+        <button class="lang-btn active" id="btnEN" onclick="setLanguage('en')">🇨🇦 EN</button>
+        <button class="lang-btn" id="btnFR" onclick="setLanguage('fr')">FR</button>
+      </div>
+    </div>
   </header>
 
   <main>
     <div class="card" id="formCard">
       <div class="progress-container">
         <div class="progress-label">
-          <span id="progressText">Step 1 of 9</span>
-          <span class="badge">Secure · Confidential</span>
+          <span id="progressText">Step 1 of 10</span>
+          <span class="badge" data-i18n="badge_secure">Secure · Confidential</span>
         </div>
         <div class="progress-bar" aria-hidden="true">
           <div class="progress-fill" id="progressFill"></div>
@@ -608,74 +657,74 @@
       <form id="loanForm" novalidate>
         <div id="formStepsWrapper">
           <section class="form-step active" data-step="1">
-            <h2 class="section-title">Borrower Information</h2>
-            <p class="section-description">Tell us about yourself and your employment.</p>
+            <h2 class="section-title" data-i18n="s1_title">Borrower Information</h2>
+            <p class="section-description" data-i18n="s1_desc">Tell us about yourself and your employment.</p>
             <div class="form-grid two-col">
               <div class="form-field">
-                <label for="name">Full Name<span class="required">*</span></label>
+                <label for="name" data-i18n="label_name">Full Name<span class="required">*</span></label>
                 <input id="name" name="name" type="text" autocomplete="name" data-required="true" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="email">Email Address<span class="required">*</span></label>
+                <label for="email" data-i18n="label_email">Email Address<span class="required">*</span></label>
                 <input id="email" name="email" type="email" autocomplete="email" data-required="true" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="cellPhone">Cell Phone<span class="required">*</span></label>
+                <label for="cellPhone" data-i18n="label_cellPhone">Cell Phone<span class="required">*</span></label>
                 <input id="cellPhone" name="cellPhone" type="tel" inputmode="tel" autocomplete="tel" data-required="true" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="otherPhone">Other Phone</label>
+                <label for="otherPhone" data-i18n="label_otherPhone">Other Phone</label>
                 <input id="otherPhone" name="otherPhone" type="tel" inputmode="tel" autocomplete="tel" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field" style="grid-column: 1 / -1;">
-                <label for="address">Address<span class="required">*</span></label>
+                <label for="address" data-i18n="label_address">Address<span class="required">*</span></label>
                 <input id="address" name="address" type="text" autocomplete="street-address" data-required="true" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="employerName">Employer Name<span class="required">*</span></label>
+                <label for="employerName" data-i18n="label_employerName">Employer Name<span class="required">*</span></label>
                 <input id="employerName" name="employerName" type="text" data-required="true" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="employerAddress">Employer Address</label>
+                <label for="employerAddress" data-i18n="label_employerAddr">Employer Address</label>
                 <input id="employerAddress" name="employerAddress" type="text" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="yearsEmployed">Number of Years with Employer</label>
+                <label for="yearsEmployed" data-i18n="label_yearsEmployed">Number of Years with Employer</label>
                 <input id="yearsEmployed" name="yearsEmployed" type="text" inputmode="decimal" class="numeric-input" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="employmentType">Employment Type<span class="required">*</span></label>
+                <label for="employmentType" data-i18n="label_employmentType">Employment Type<span class="required">*</span></label>
                 <select id="employmentType" name="employmentType" data-required="true">
-                  <option value="">Select...</option>
-                  <option value="Permanent">Permanent</option>
-                  <option value="Part-time">Part-time</option>
+                  <option value="" data-i18n="opt_select">Select...</option>
+                  <option value="Permanent" data-i18n="opt_permanent">Permanent</option>
+                  <option value="Part-time" data-i18n="opt_parttime">Part-time</option>
                 </select>
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="compensationType">Compensation Type<span class="required">*</span></label>
+                <label for="compensationType" data-i18n="label_compType">Compensation Type<span class="required">*</span></label>
                 <select id="compensationType" name="compensationType" data-required="true">
-                  <option value="">Select...</option>
-                  <option value="Salary">Salary</option>
-                  <option value="Commission">Commission</option>
+                  <option value="" data-i18n="opt_select">Select...</option>
+                  <option value="Salary" data-i18n="opt_salary">Salary</option>
+                  <option value="Commission" data-i18n="opt_commission">Commission</option>
                 </select>
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="employerPhone">Employer Telephone</label>
+                <label for="employerPhone" data-i18n="label_employerPhone">Employer Telephone</label>
                 <input id="employerPhone" name="employerPhone" type="tel" inputmode="tel" />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="employerEmail">Employer Email</label>
+                <label for="employerEmail" data-i18n="label_employerEmail">Employer Email</label>
                 <input id="employerEmail" name="employerEmail" type="email" />
                 <small class="error-message"></small>
               </div>
@@ -683,56 +732,56 @@
           </section>
 
           <section class="form-step" data-step="2">
-            <h2 class="section-title">Income</h2>
-            <p class="section-description">List all recurring gross monthly income sources.</p>
+            <h2 class="section-title" data-i18n="s2_title">Income</h2>
+            <p class="section-description" data-i18n="s2_desc">List all recurring gross monthly income sources.</p>
             <div class="table-like">
               <div class="table-header">
-                <div>Source / Description</div>
-                <div>Gross Monthly Amount ($)</div>
+                <div data-i18n="th_source">Source / Description</div>
+                <div data-i18n="th_gross">Gross Monthly Amount ($)</div>
               </div>
               <div class="table-row">
-                <div><input id="income1Source" type="text" placeholder="Primary income" /></div>
+                <div><input id="income1Source" type="text" placeholder="Primary income" data-i18n-placeholder="placeholder_income1" /></div>
                 <div><input id="income1Amount" type="text" inputmode="decimal" class="currency-input" /></div>
               </div>
               <div class="table-row">
-                <div><input id="income2Source" type="text" placeholder="Additional income" /></div>
+                <div><input id="income2Source" type="text" placeholder="Additional income" data-i18n-placeholder="placeholder_income2" /></div>
                 <div><input id="income2Amount" type="text" inputmode="decimal" class="currency-input" /></div>
               </div>
               <div class="table-row">
-                <div><input id="income3Source" type="text" placeholder="Additional income" /></div>
+                <div><input id="income3Source" type="text" placeholder="Additional income" data-i18n-placeholder="placeholder_income3" /></div>
                 <div><input id="income3Amount" type="text" inputmode="decimal" class="currency-input" /></div>
               </div>
               <div class="table-row">
-                <div><input id="investmentIncomeSource" type="text" placeholder="Investments / other" /></div>
+                <div><input id="investmentIncomeSource" type="text" placeholder="Investments / other" data-i18n-placeholder="placeholder_invest" /></div>
                 <div><input id="investmentIncome" type="text" inputmode="decimal" class="currency-input" /></div>
               </div>
             </div>
             <div class="form-grid">
               <div class="form-field">
-                <label for="totalGrossIncome">Total Gross Monthly Income ($)<span class="required">*</span></label>
+                <label for="totalGrossIncome" data-i18n="label_totalGross">Total Gross Monthly Income ($)<span class="required">*</span></label>
                 <input id="totalGrossIncome" name="totalGrossIncome" type="text" class="read-only" readonly data-required="true" />
                 <small class="error-message"></small>
-                <div class="inline-note">Automatically calculated.</div>
+                <div class="inline-note" data-i18n="note_auto_calc">Automatically calculated.</div>
               </div>
             </div>
           </section>
 
           <section class="form-step" data-step="3">
-            <h2 class="section-title">Monthly Obligations</h2>
-            <p class="section-description">Enter all fixed monthly housing and legal obligations.</p>
+            <h2 class="section-title" data-i18n="s3_title">Monthly Obligations</h2>
+            <p class="section-description" data-i18n="s3_desc">Enter all fixed monthly housing and legal obligations.</p>
             <div class="form-grid two-col">
-              <div class="form-field"><label for="housing">Housing (Rent / Mortgage) ($)</label><input id="housing" name="housing" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="propertyTaxes">Property Taxes ($)</label><input id="propertyTaxes" name="propertyTaxes" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="condoFees">Condo Fees ($)</label><input id="condoFees" name="condoFees" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="insurance">Insurance ($)</label><input id="insurance" name="insurance" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="heating">Heating ($)</label><input id="heating" name="heating" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="alimony">Alimony ($)</label><input id="alimony" name="alimony" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="childSupport">Child Support / Alimony ($)</label><input id="childSupport" name="childSupport" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="otherObligations">Other Legal Financial Obligations ($)</label><input id="otherObligations" name="otherObligations" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="housing" data-i18n="label_housing">Housing (Rent / Mortgage) ($)</label><input id="housing" name="housing" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="propertyTaxes" data-i18n="label_propertyTaxes">Property Taxes ($)</label><input id="propertyTaxes" name="propertyTaxes" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="condoFees" data-i18n="label_condoFees">Condo Fees ($)</label><input id="condoFees" name="condoFees" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="insurance" data-i18n="label_insurance">Insurance ($)</label><input id="insurance" name="insurance" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="heating" data-i18n="label_heating">Heating ($)</label><input id="heating" name="heating" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="alimony" data-i18n="label_alimony">Alimony ($)</label><input id="alimony" name="alimony" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="childSupport" data-i18n="label_childSupport">Child Support / Alimony ($)</label><input id="childSupport" name="childSupport" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="otherObligations" data-i18n="label_otherObligations">Other Legal Financial Obligations ($)</label><input id="otherObligations" name="otherObligations" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
             </div>
             <div class="form-grid">
               <div class="form-field">
-                <label for="totalMonthlyObligations">Total Monthly Obligations ($)</label>
+                <label for="totalMonthlyObligations" data-i18n="label_totalObligations">Total Monthly Obligations ($)</label>
                 <input id="totalMonthlyObligations" name="totalMonthlyObligations" type="text" class="read-only" readonly />
                 <small class="error-message"></small>
               </div>
@@ -740,62 +789,62 @@
           </section>
 
           <section class="form-step" data-step="4">
-            <h2 class="section-title">Debt Payments</h2>
-            <p class="section-description">Minimum required monthly payments for each debt.</p>
+            <h2 class="section-title" data-i18n="s4_title">Debt Payments</h2>
+            <p class="section-description" data-i18n="s4_desc">Minimum required monthly payments for each debt.</p>
             <div class="form-grid two-col">
-              <div class="form-field"><label for="creditCards">Credit Cards (minimum payment) ($)</label><input id="creditCards" name="creditCards" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="personalLoan">Personal Loan ($)</label><input id="personalLoan" name="personalLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="autoLoan">Auto Loan ($)</label><input id="autoLoan" name="autoLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="studentLoan">Student Loan ($)</label><input id="studentLoan" name="studentLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="surecapLoanInterest">SureCap Loan Interest ($)</label><input id="surecapLoanInterest" name="surecapLoanInterest" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="creditCards" data-i18n="label_creditCards">Credit Cards (minimum payment) ($)</label><input id="creditCards" name="creditCards" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="personalLoan" data-i18n="label_personalLoan">Personal Loan ($)</label><input id="personalLoan" name="personalLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="autoLoan" data-i18n="label_autoLoan">Auto Loan ($)</label><input id="autoLoan" name="autoLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="studentLoan" data-i18n="label_studentLoan">Student Loan ($)</label><input id="studentLoan" name="studentLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="surecapLoanInterest" data-i18n="label_surecapInterest">SureCap Loan Interest ($)</label><input id="surecapLoanInterest" name="surecapLoanInterest" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
             </div>
             <div class="form-grid two-col">
               <div class="form-field">
-                <label for="totalDebtExpenses">Total Debt Expenses ($)</label>
+                <label for="totalDebtExpenses" data-i18n="label_totalDebtExpenses">Total Debt Expenses ($)</label>
                 <input id="totalDebtExpenses" name="totalDebtExpenses" type="text" class="read-only" readonly />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="dti">Debt-to-Income Ratio (%)</label>
+                <label for="dti" data-i18n="label_dti">Debt-to-Income Ratio (%)</label>
                 <input id="dti" name="dti" type="text" class="read-only" readonly />
                 <small class="error-message"></small>
-                <div class="inline-note">(Total Obligations + Total Debt Expenses) ÷ Total Income × 100</div>
+                <div class="inline-note" data-i18n="note_dti">(Total Obligations + Total Debt Expenses) ÷ Total Income × 100</div>
               </div>
             </div>
           </section>
 
           <section class="form-step" data-step="5">
-            <h2 class="section-title">Assets</h2>
-            <p class="section-description">Assets including properties and investments.</p>
+            <h2 class="section-title" data-i18n="s5_title">Assets</h2>
+            <p class="section-description" data-i18n="s5_desc">Assets including properties and investments.</p>
             <div class="form-grid two-col">
-              <div class="form-field"><label for="stocksInvestments">Stocks and Investments ($)</label><input id="stocksInvestments" name="stocksInvestments" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="otherAssets">Other Assets ($)</label><input id="otherAssets" name="otherAssets" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="stocksInvestments" data-i18n="label_stocks">Stocks and Investments ($)</label><input id="stocksInvestments" name="stocksInvestments" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="otherAssets" data-i18n="label_otherAssets">Other Assets ($)</label><input id="otherAssets" name="otherAssets" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <!-- Property 1 — always visible -->
-              <div class="form-field" id="propValueBlock1"><label for="prop1Value">Property 1 Value ($)</label><input id="prop1Value" name="prop1Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field" id="propValueBlock1"><label for="prop1Value" data-i18n="label_prop1Value">Property 1 Value ($)</label><input id="prop1Value" name="prop1Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <!-- Properties 2–5 — hidden until added -->
               <div class="form-field prop-block prop-block--hidden" id="propValueBlock2">
-                <div class="prop-value-header"><label for="prop2Value">Property 2 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="2">&#10005;</button></div>
+                <div class="prop-value-header"><label for="prop2Value" data-i18n="label_prop2Value">Property 2 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="2">&#10005;</button></div>
                 <input id="prop2Value" name="prop2Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
               <div class="form-field prop-block prop-block--hidden" id="propValueBlock3">
-                <div class="prop-value-header"><label for="prop3Value">Property 3 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="3">&#10005;</button></div>
+                <div class="prop-value-header"><label for="prop3Value" data-i18n="label_prop3Value">Property 3 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="3">&#10005;</button></div>
                 <input id="prop3Value" name="prop3Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
               <div class="form-field prop-block prop-block--hidden" id="propValueBlock4">
-                <div class="prop-value-header"><label for="prop4Value">Property 4 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="4">&#10005;</button></div>
+                <div class="prop-value-header"><label for="prop4Value" data-i18n="label_prop4Value">Property 4 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="4">&#10005;</button></div>
                 <input id="prop4Value" name="prop4Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
               <div class="form-field prop-block prop-block--hidden" id="propValueBlock5">
-                <div class="prop-value-header"><label for="prop5Value">Property 5 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="5">&#10005;</button></div>
+                <div class="prop-value-header"><label for="prop5Value" data-i18n="label_prop5Value">Property 5 Value ($)</label><button type="button" class="remove-prop-value-btn" data-pv="5">&#10005;</button></div>
                 <input id="prop5Value" name="prop5Value" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
             </div>
-            <button type="button" id="addPropValueBtn" class="btn btn-outline" style="margin-top:12px; font-size:14px; padding:10px 20px; min-height:40px;">
+            <button type="button" id="addPropValueBtn" class="btn btn-outline" data-i18n="btn_add_property" style="margin-top:12px; font-size:14px; padding:10px 20px; min-height:40px;">
               + Add another property
             </button>
             <div class="form-grid">
               <div class="form-field">
-                <label for="totalAssets">Total Assets ($)</label>
+                <label for="totalAssets" data-i18n="label_totalAssets">Total Assets ($)</label>
                 <input id="totalAssets" name="totalAssets" type="text" class="read-only" readonly />
                 <small class="error-message"></small>
               </div>
@@ -803,161 +852,161 @@
           </section>
 
           <section class="form-step" data-step="6">
-            <h2 class="section-title">Liabilities</h2>
-            <p class="section-description">Outstanding debt balances.</p>
+            <h2 class="section-title" data-i18n="s6_title">Liabilities</h2>
+            <p class="section-description" data-i18n="s6_desc">Outstanding debt balances.</p>
             <div class="form-grid two-col">
-              <div class="form-field"><label for="ccDebt">Credit Card Debt ($)</label><input id="ccDebt" name="ccDebt" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="lineOfCredit">Line of Credit ($)</label><input id="lineOfCredit" name="lineOfCredit" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="personalLoansLiab">Personal Loans ($)</label><input id="personalLoansLiab" name="personalLoansLiab" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-              <div class="form-field"><label for="surecapLoan">SureCap Loan ($)</label><input id="surecapLoan" name="surecapLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="ccDebt" data-i18n="label_ccDebt">Credit Card Debt ($)</label><input id="ccDebt" name="ccDebt" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="lineOfCredit" data-i18n="label_lineOfCredit">Line of Credit ($)</label><input id="lineOfCredit" name="lineOfCredit" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="personalLoansLiab" data-i18n="label_personalLoansLiab">Personal Loans ($)</label><input id="personalLoansLiab" name="personalLoansLiab" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field"><label for="surecapLoan" data-i18n="label_surecapLoan">SureCap Loan ($)</label><input id="surecapLoan" name="surecapLoan" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <!-- Mortgage 1 — always visible -->
-              <div class="form-field" id="mortgageBlock1"><label for="mortgage1">Mortgage — Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+              <div class="form-field" id="mortgageBlock1"><label for="mortgage1" data-i18n="label_mortgage1">Mortgage — Property 1 ($)</label><input id="mortgage1" name="mortgage1" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
               <!-- Mortgages 2–5 — hidden until added -->
               <div class="form-field prop-block prop-block--hidden" id="mortgageBlock2">
-                <div class="prop-value-header"><label for="mortgage2">Mortgage — Property 2 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="2">&#10005;</button></div>
+                <div class="prop-value-header"><label for="mortgage2" data-i18n="label_mortgage2">Mortgage — Property 2 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="2">&#10005;</button></div>
                 <input id="mortgage2" name="mortgage2" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
               <div class="form-field prop-block prop-block--hidden" id="mortgageBlock3">
-                <div class="prop-value-header"><label for="mortgage3">Mortgage — Property 3 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="3">&#10005;</button></div>
+                <div class="prop-value-header"><label for="mortgage3" data-i18n="label_mortgage3">Mortgage — Property 3 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="3">&#10005;</button></div>
                 <input id="mortgage3" name="mortgage3" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
               <div class="form-field prop-block prop-block--hidden" id="mortgageBlock4">
-                <div class="prop-value-header"><label for="mortgage4">Mortgage — Property 4 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="4">&#10005;</button></div>
+                <div class="prop-value-header"><label for="mortgage4" data-i18n="label_mortgage4">Mortgage — Property 4 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="4">&#10005;</button></div>
                 <input id="mortgage4" name="mortgage4" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
               <div class="form-field prop-block prop-block--hidden" id="mortgageBlock5">
-                <div class="prop-value-header"><label for="mortgage5">Mortgage — Property 5 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="5">&#10005;</button></div>
+                <div class="prop-value-header"><label for="mortgage5" data-i18n="label_mortgage5">Mortgage — Property 5 ($)</label><button type="button" class="remove-prop-value-btn" data-mg="5">&#10005;</button></div>
                 <input id="mortgage5" name="mortgage5" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small>
               </div>
             </div>
-            <button type="button" id="addMortgageBtn" class="btn btn-outline" style="margin-top:12px; font-size:14px; padding:10px 20px; min-height:40px;">
+            <button type="button" id="addMortgageBtn" class="btn btn-outline" data-i18n="btn_add_mortgage" style="margin-top:12px; font-size:14px; padding:10px 20px; min-height:40px;">
               + Add another mortgage
             </button>
             <div class="form-grid two-col">
               <div class="form-field">
-                <label for="totalDebt">Total Debt ($)</label>
+                <label for="totalDebt" data-i18n="label_totalDebt">Total Debt ($)</label>
                 <input id="totalDebt" name="totalDebt" type="text" class="read-only" readonly />
                 <small class="error-message"></small>
               </div>
               <div class="form-field">
-                <label for="netWorth">Net Worth ($)</label>
+                <label for="netWorth" data-i18n="label_netWorth">Net Worth ($)</label>
                 <input id="netWorth" name="netWorth" type="text" class="read-only" readonly />
                 <small class="error-message"></small>
-                <div class="inline-note">Total Assets − Total Debt</div>
+                <div class="inline-note" data-i18n="note_netWorth">Total Assets − Total Debt</div>
               </div>
             </div>
           </section>
 
           <section class="form-step" data-step="7">
-            <h2 class="section-title">Property Details</h2>
-            <p class="section-description">Enter details for your primary property. You can add up to four more.</p>
+            <h2 class="section-title" data-i18n="s7_title">Property Details</h2>
+            <p class="section-description" data-i18n="s7_desc">Enter details for your primary property. You can add up to four more.</p>
 
             <!-- Property 1 — always visible -->
             <div id="propBlock1">
-              <div class="pill">Property 1</div>
+              <div class="pill" data-i18n="pill_prop1">Property 1</div>
               <div class="form-grid two-col" style="margin-top:8px;">
-                <div class="form-field"><label for="prop1Civic">Civic Number</label><input id="prop1Civic" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1Street">Street Name</label><input id="prop1Street" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1City">City</label><input id="prop1City" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1Postal">Postal Code</label><input id="prop1Postal" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1Lot">Lot Number</label><input id="prop1Lot" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1MarketValue">Property Market Value ($)</label><input id="prop1MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1Mortgage">Total Mortgage Amount ($)</label><input id="prop1Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1Equity">Equity ($)</label><input id="prop1Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop1LTV">Debt-to-Value Ratio (%)</label><input id="prop1LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Civic" data-i18n="label_civic">Civic Number</label><input id="prop1Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Street" data-i18n="label_street">Street Name</label><input id="prop1Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1City" data-i18n="label_city">City</label><input id="prop1City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Postal" data-i18n="label_postal">Postal Code</label><input id="prop1Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Lot" data-i18n="label_lot">Lot Number</label><input id="prop1Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1MarketValue" data-i18n="label_marketValue">Property Market Value ($)</label><input id="prop1MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Mortgage" data-i18n="label_mortgageAmt">Total Mortgage Amount ($)</label><input id="prop1Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1Equity" data-i18n="label_equity">Equity ($)</label><input id="prop1Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop1LTV" data-i18n="label_ltv">Debt-to-Value Ratio (%)</label><input id="prop1LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
               </div>
             </div>
 
             <!-- Property 2 — hidden until added -->
             <div id="propBlock2" class="prop-block prop-block--hidden">
               <div class="prop-block-header">
-                <div class="pill">Property 2</div>
-                <button type="button" class="remove-prop-btn" data-prop="2">&#10005; Remove</button>
+                <div class="pill" data-i18n="pill_prop2">Property 2</div>
+                <button type="button" class="remove-prop-btn" data-prop="2" data-i18n="btn_remove_prop">&#10005; Remove</button>
               </div>
               <div class="form-grid two-col" style="margin-top:8px;">
-                <div class="form-field"><label for="prop2Civic">Civic Number</label><input id="prop2Civic" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2Street">Street Name</label><input id="prop2Street" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2City">City</label><input id="prop2City" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2Postal">Postal Code</label><input id="prop2Postal" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2Lot">Lot Number</label><input id="prop2Lot" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2MarketValue">Property Market Value ($)</label><input id="prop2MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2Mortgage">Total Mortgage Amount ($)</label><input id="prop2Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2Equity">Equity ($)</label><input id="prop2Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop2LTV">Debt-to-Value Ratio (%)</label><input id="prop2LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Civic" data-i18n="label_civic">Civic Number</label><input id="prop2Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Street" data-i18n="label_street">Street Name</label><input id="prop2Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2City" data-i18n="label_city">City</label><input id="prop2City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Postal" data-i18n="label_postal">Postal Code</label><input id="prop2Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Lot" data-i18n="label_lot">Lot Number</label><input id="prop2Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2MarketValue" data-i18n="label_marketValue">Property Market Value ($)</label><input id="prop2MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Mortgage" data-i18n="label_mortgageAmt">Total Mortgage Amount ($)</label><input id="prop2Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2Equity" data-i18n="label_equity">Equity ($)</label><input id="prop2Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop2LTV" data-i18n="label_ltv">Debt-to-Value Ratio (%)</label><input id="prop2LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
               </div>
             </div>
 
             <!-- Property 3 — hidden until added -->
             <div id="propBlock3" class="prop-block prop-block--hidden">
               <div class="prop-block-header">
-                <div class="pill">Property 3</div>
-                <button type="button" class="remove-prop-btn" data-prop="3">&#10005; Remove</button>
+                <div class="pill" data-i18n="pill_prop3">Property 3</div>
+                <button type="button" class="remove-prop-btn" data-prop="3" data-i18n="btn_remove_prop">&#10005; Remove</button>
               </div>
               <div class="form-grid two-col" style="margin-top:8px;">
-                <div class="form-field"><label for="prop3Civic">Civic Number</label><input id="prop3Civic" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3Street">Street Name</label><input id="prop3Street" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3City">City</label><input id="prop3City" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3Postal">Postal Code</label><input id="prop3Postal" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3Lot">Lot Number</label><input id="prop3Lot" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3MarketValue">Property Market Value ($)</label><input id="prop3MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3Mortgage">Total Mortgage Amount ($)</label><input id="prop3Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3Equity">Equity ($)</label><input id="prop3Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop3LTV">Debt-to-Value Ratio (%)</label><input id="prop3LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Civic" data-i18n="label_civic">Civic Number</label><input id="prop3Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Street" data-i18n="label_street">Street Name</label><input id="prop3Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3City" data-i18n="label_city">City</label><input id="prop3City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Postal" data-i18n="label_postal">Postal Code</label><input id="prop3Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Lot" data-i18n="label_lot">Lot Number</label><input id="prop3Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3MarketValue" data-i18n="label_marketValue">Property Market Value ($)</label><input id="prop3MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Mortgage" data-i18n="label_mortgageAmt">Total Mortgage Amount ($)</label><input id="prop3Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3Equity" data-i18n="label_equity">Equity ($)</label><input id="prop3Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop3LTV" data-i18n="label_ltv">Debt-to-Value Ratio (%)</label><input id="prop3LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
               </div>
             </div>
 
             <!-- Property 4 — hidden until added -->
             <div id="propBlock4" class="prop-block prop-block--hidden">
               <div class="prop-block-header">
-                <div class="pill">Property 4</div>
-                <button type="button" class="remove-prop-btn" data-prop="4">&#10005; Remove</button>
+                <div class="pill" data-i18n="pill_prop4">Property 4</div>
+                <button type="button" class="remove-prop-btn" data-prop="4" data-i18n="btn_remove_prop">&#10005; Remove</button>
               </div>
               <div class="form-grid two-col" style="margin-top:8px;">
-                <div class="form-field"><label for="prop4Civic">Civic Number</label><input id="prop4Civic" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4Street">Street Name</label><input id="prop4Street" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4City">City</label><input id="prop4City" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4Postal">Postal Code</label><input id="prop4Postal" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4Lot">Lot Number</label><input id="prop4Lot" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4MarketValue">Property Market Value ($)</label><input id="prop4MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4Mortgage">Total Mortgage Amount ($)</label><input id="prop4Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4Equity">Equity ($)</label><input id="prop4Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop4LTV">Debt-to-Value Ratio (%)</label><input id="prop4LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Civic" data-i18n="label_civic">Civic Number</label><input id="prop4Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Street" data-i18n="label_street">Street Name</label><input id="prop4Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4City" data-i18n="label_city">City</label><input id="prop4City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Postal" data-i18n="label_postal">Postal Code</label><input id="prop4Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Lot" data-i18n="label_lot">Lot Number</label><input id="prop4Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4MarketValue" data-i18n="label_marketValue">Property Market Value ($)</label><input id="prop4MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Mortgage" data-i18n="label_mortgageAmt">Total Mortgage Amount ($)</label><input id="prop4Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4Equity" data-i18n="label_equity">Equity ($)</label><input id="prop4Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop4LTV" data-i18n="label_ltv">Debt-to-Value Ratio (%)</label><input id="prop4LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
               </div>
             </div>
 
             <!-- Property 5 — hidden until added -->
             <div id="propBlock5" class="prop-block prop-block--hidden">
               <div class="prop-block-header">
-                <div class="pill">Property 5</div>
-                <button type="button" class="remove-prop-btn" data-prop="5">&#10005; Remove</button>
+                <div class="pill" data-i18n="pill_prop5">Property 5</div>
+                <button type="button" class="remove-prop-btn" data-prop="5" data-i18n="btn_remove_prop">&#10005; Remove</button>
               </div>
               <div class="form-grid two-col" style="margin-top:8px;">
-                <div class="form-field"><label for="prop5Civic">Civic Number</label><input id="prop5Civic" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5Street">Street Name</label><input id="prop5Street" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5City">City</label><input id="prop5City" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5Postal">Postal Code</label><input id="prop5Postal" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5Lot">Lot Number</label><input id="prop5Lot" type="text" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5MarketValue">Property Market Value ($)</label><input id="prop5MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5Mortgage">Total Mortgage Amount ($)</label><input id="prop5Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5Equity">Equity ($)</label><input id="prop5Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
-                <div class="form-field"><label for="prop5LTV">Debt-to-Value Ratio (%)</label><input id="prop5LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Civic" data-i18n="label_civic">Civic Number</label><input id="prop5Civic" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Street" data-i18n="label_street">Street Name</label><input id="prop5Street" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5City" data-i18n="label_city">City</label><input id="prop5City" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Postal" data-i18n="label_postal">Postal Code</label><input id="prop5Postal" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Lot" data-i18n="label_lot">Lot Number</label><input id="prop5Lot" type="text" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5MarketValue" data-i18n="label_marketValue">Property Market Value ($)</label><input id="prop5MarketValue" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Mortgage" data-i18n="label_mortgageAmt">Total Mortgage Amount ($)</label><input id="prop5Mortgage" type="text" inputmode="decimal" class="currency-input" /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5Equity" data-i18n="label_equity">Equity ($)</label><input id="prop5Equity" type="text" class="read-only" readonly /><small class="error-message"></small></div>
+                <div class="form-field"><label for="prop5LTV" data-i18n="label_ltv">Debt-to-Value Ratio (%)</label><input id="prop5LTV" type="text" class="read-only" readonly /><small class="error-message"></small></div>
               </div>
             </div>
 
-            <button type="button" id="addPropertyBtn" class="btn btn-outline" style="margin-top:20px; font-size:14px; padding:10px 20px; min-height:40px;">
+            <button type="button" id="addPropertyBtn" class="btn btn-outline" data-i18n="btn_add_property" style="margin-top:20px; font-size:14px; padding:10px 20px; min-height:40px;">
               + Add another property
             </button>
           </section>
 
           <section class="form-step" data-step="8">
-            <h2 class="section-title">Documents &amp; Signature</h2>
-            <p class="section-description">
+            <h2 class="section-title" data-i18n="s8_title">Documents &amp; Signature</h2>
+            <p class="section-description" data-i18n="s8_desc">
               Upload each document using the button on its row. The checkbox ticks automatically when a file is uploaded.
               Files are saved to Google Drive immediately — not on submit.
             </p>
 
             <div class="form-field">
-              <label>Documents Checklist</label>
+              <label data-i18n="label_docs_checklist">Documents Checklist</label>
               <div class="doc-upload-list" id="docUploadList">
 
                 <!-- utilities -->
@@ -965,9 +1014,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-utilities" />
-                      <span>Utilities</span>
+                      <span data-i18n="doc_utilities">Utilities</span>
                     </div>
-                    <label class="file-pick-btn" for="file-utilities">
+                    <label class="file-pick-btn" for="file-utilities" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-utilities" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="utilities" multiple />
                     </label>
@@ -980,9 +1029,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-pay_stubs" />
-                      <span>Pay stubs / proof of income</span>
+                      <span data-i18n="doc_pay_stubs">Pay stubs / proof of income</span>
                     </div>
-                    <label class="file-pick-btn" for="file-pay_stubs">
+                    <label class="file-pick-btn" for="file-pay_stubs" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-pay_stubs" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="pay_stubs" multiple />
                     </label>
@@ -995,9 +1044,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-gov_assessments" />
-                      <span>Government assessments (3 years)</span>
+                      <span data-i18n="doc_gov_assessments">Government assessments (3 years)</span>
                     </div>
-                    <label class="file-pick-btn" for="file-gov_assessments">
+                    <label class="file-pick-btn" for="file-gov_assessments" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-gov_assessments" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="gov_assessments" multiple />
                     </label>
@@ -1010,9 +1059,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-tax_bills" />
-                      <span>Municipal tax bills</span>
+                      <span data-i18n="doc_tax_bills">Municipal tax bills</span>
                     </div>
-                    <label class="file-pick-btn" for="file-tax_bills">
+                    <label class="file-pick-btn" for="file-tax_bills" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-tax_bills" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="tax_bills" multiple />
                     </label>
@@ -1025,9 +1074,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-condo_fees" />
-                      <span>Condo fees</span>
+                      <span data-i18n="doc_condo_fees">Condo fees</span>
                     </div>
-                    <label class="file-pick-btn" for="file-condo_fees">
+                    <label class="file-pick-btn" for="file-condo_fees" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-condo_fees" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="condo_fees" multiple />
                     </label>
@@ -1040,9 +1089,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-loan_contracts" />
-                      <span>Other loan contracts and interest statements</span>
+                      <span data-i18n="doc_loan_contracts">Other loan contracts and interest statements</span>
                     </div>
-                    <label class="file-pick-btn" for="file-loan_contracts">
+                    <label class="file-pick-btn" for="file-loan_contracts" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-loan_contracts" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="loan_contracts" multiple />
                     </label>
@@ -1055,9 +1104,9 @@
                   <div class="doc-top-row">
                     <div class="doc-check-label">
                       <input type="checkbox" id="chk-credit_report" />
-                      <span>Credit report</span>
+                      <span data-i18n="doc_credit_report">Credit report</span>
                     </div>
-                    <label class="file-pick-btn" for="file-credit_report">
+                    <label class="file-pick-btn" for="file-credit_report" data-i18n="btn_choose_file">
                       &#128206; Choose file
                       <input type="file" id="file-credit_report" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png" data-doc="credit_report" multiple />
                     </label>
@@ -1066,15 +1115,15 @@
                 </div>
 
               </div>
-              <div class="doc-size-note">Accepted: PDF, JPG, PNG — max 10 MB per file, up to 5 files per category. Files are uploaded to Google Drive immediately.</div>
+              <div class="doc-size-note" data-i18n="doc_size_note">Accepted: PDF, JPG, PNG — max 10 MB per file, up to 5 files per category. Files are uploaded to Google Drive immediately.</div>
               <small class="error-message"></small>
             </div>
           </section>
 
           <!-- ── Step 9 · Identity Verification ── -->
           <section class="form-step" data-step="9">
-            <h2 class="section-title">Identity Verification</h2>
-            <p class="section-description">
+            <h2 class="section-title" data-i18n="s9_title">Identity Verification</h2>
+            <p class="section-description" data-i18n="s9_desc">
               Please take a quick selfie so we can confirm you are the person submitting this application.
               Position your face inside the oval and press <strong>Take Photo</strong>.
             </p>
@@ -1086,7 +1135,7 @@
                 <video id="cameraFeed" class="camera-feed" autoplay playsinline muted></video>
                 <div class="face-guide-overlay"><div class="face-oval"></div></div>
                 <div class="capture-btn-row">
-                  <button type="button" id="captureBtn" class="btn capture-btn">&#128247; Take Photo</button>
+                  <button type="button" id="captureBtn" class="btn capture-btn" data-i18n="btn_take_photo">&#128247; Take Photo</button>
                 </div>
               </div>
 
@@ -1094,20 +1143,20 @@
               <div class="selfie-preview-wrap hidden" id="capturedView">
                 <canvas id="selfieCanvas" class="selfie-preview"></canvas>
                 <div class="selfie-action-bar">
-                  <button type="button" id="retakeBtn" class="btn btn-outline" style="flex:0 0 auto;">&#8617; Retake</button>
+                  <button type="button" id="retakeBtn" class="btn btn-outline" style="flex:0 0 auto;" data-i18n="btn_retake">&#8617; Retake</button>
                   <span class="selfie-status" id="selfieStatus"></span>
                 </div>
               </div>
 
               <!-- camera not available -->
               <div class="camera-error-box hidden" id="cameraErrorBox">
-                <p>Camera access was denied or unavailable.<br>Please allow camera access and try again.</p>
-                <button type="button" id="retryCameraBtn" class="btn btn-outline">Try Again</button>
+                <p data-i18n="camera_denied">Camera access was denied or unavailable.<br>Please allow camera access and try again.</p>
+                <button type="button" id="retryCameraBtn" class="btn btn-outline" data-i18n="btn_try_again">Try Again</button>
               </div>
 
             </div>
 
-            <p class="consent-note">
+            <p class="consent-note" data-i18n="consent_note">
               By capturing and submitting this photo you consent to Surecap Finance using it solely for identity verification purposes.
             </p>
             <small class="error-message" id="selfieError"></small>
@@ -1115,52 +1164,264 @@
 
           <!-- ── Step 10 · Review & Submit ── -->
           <section class="form-step" data-step="10">
-            <h2 class="section-title">Review &amp; Submit</h2>
-            <p class="section-description">Review and submit your application to Surecap Finance.</p>
+            <h2 class="section-title" data-i18n="s10_title">Review &amp; Submit</h2>
+            <p class="section-description" data-i18n="s10_desc">Review and submit your application to Surecap Finance.</p>
             <div class="summary-box">
-              <div class="summary-row"><div class="summary-label">Borrower Name</div><div class="summary-value" id="summaryName">–</div></div>
-              <div class="summary-row"><div class="summary-label">Total Gross Monthly Income ($)</div><div class="summary-value" id="summaryTotalIncome">–</div></div>
-              <div class="summary-row"><div class="summary-label">Debt-to-Income Ratio (%)</div><div class="summary-value" id="summaryDTI">–</div></div>
-              <div class="summary-row"><div class="summary-label">Net Worth ($)</div><div class="summary-value" id="summaryNetWorth">–</div></div>
+              <div class="summary-row"><div class="summary-label" data-i18n="summary_name">Borrower Name</div><div class="summary-value" id="summaryName">–</div></div>
+              <div class="summary-row"><div class="summary-label" data-i18n="summary_income">Total Gross Monthly Income ($)</div><div class="summary-value" id="summaryTotalIncome">–</div></div>
+              <div class="summary-row"><div class="summary-label" data-i18n="summary_dti">Debt-to-Income Ratio (%)</div><div class="summary-value" id="summaryDTI">–</div></div>
+              <div class="summary-row"><div class="summary-label" data-i18n="summary_nw">Net Worth ($)</div><div class="summary-value" id="summaryNetWorth">–</div></div>
             </div>
-            <p class="inline-note" style="margin-top:12px;">By submitting, you confirm the information is accurate and complete.</p>
+            <p class="inline-note" data-i18n="submit_note" style="margin-top:12px;">By submitting, you confirm the information is accurate and complete.</p>
             <div class="nav-buttons" style="margin-top:18px;">
-              <button type="button" id="prevBtnFinal" class="btn btn-outline">Previous</button>
-              <button type="button" id="submitBtn" class="btn btn-primary">Submit Application</button>
+              <button type="button" id="prevBtnFinal" class="btn btn-outline" data-i18n="btn_previous">Previous</button>
+              <button type="button" id="submitBtn" class="btn btn-primary" data-i18n="btn_submit">Submit Application</button>
             </div>
             <div id="submitStatus" class="status-message"></div>
-            <button type="button" id="retryBtn" class="btn btn-outline hidden" style="margin-top:10px;">Retry Submission</button>
+            <button type="button" id="retryBtn" class="btn btn-outline hidden" data-i18n="btn_retry" style="margin-top:10px;">Retry Submission</button>
           </section>
         </div>
 
         <div class="nav-buttons" id="stepNav">
-          <button type="button" id="prevBtn" class="btn btn-outline" disabled>Previous</button>
-          <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+          <button type="button" id="prevBtn" class="btn btn-outline" disabled data-i18n="btn_previous">Previous</button>
+          <button type="button" id="nextBtn" class="btn btn-primary" data-i18n="btn_next">Next</button>
         </div>
       </form>
     </div>
 
     <div id="confirmationCard" class="card confirmation hidden">
-      <h2>Thank you for your application.</h2>
-      <p>Your Surecap Finance credit application has been securely submitted.</p>
+      <h2 data-i18n="confirm_title">Thank you for your application.</h2>
+      <p data-i18n="confirm_body">Your Surecap Finance credit application has been securely submitted.</p>
       <p class="fallback-warning" style="display:none;"></p>
-      <p>Our team will review your information and contact you shortly.</p>
+      <p data-i18n="confirm_footer">Our team will review your information and contact you shortly.</p>
     </div>
 
     <div id="signingCard" class="card hidden">
-      <h2>Almost done — please sign your loan agreement</h2>
-      <p>Review the document below and add your signature to complete your application.</p>
+      <h2 data-i18n="signing_title">Almost done — please sign your loan agreement</h2>
+      <p data-i18n="signing_body">Review the document below and add your signature to complete your application.</p>
       <div id="docuseal-container"></div>
     </div>
 
     <div id="signedCard" class="card hidden">
-      <h2>Application Complete ✓</h2>
-      <p>Your loan application has been submitted and signed. You will receive a copy of the signed agreement by email shortly.</p>
+      <h2 data-i18n="signed_title">Application Complete ✓</h2>
+      <p data-i18n="signed_body">Your loan application has been submitted and signed. You will receive a copy of the signed agreement by email shortly.</p>
     </div>
   </main>
 
   <script src="https://cdn.docuseal.com/js/form.js"></script>
   <script>
+    // ── i18n dictionary ───────────────────────────────────────────────────────
+    const i18n = {
+      subtitle:       { en: "Credit Risk &amp; Loan Application Form", fr: "Formulaire de demande de prêt et d'analyse de risque de crédit" },
+      badge_secure:   { en: "Secure · Confidential",  fr: "Sécurisé · Confidentiel" },
+      progress_step:  { en: "Step",    fr: "Étape" },
+      progress_of:    { en: "of",      fr: "sur" },
+      btn_previous:   { en: "Previous",             fr: "Précédent" },
+      btn_next:       { en: "Next",                 fr: "Suivant" },
+      btn_submit:     { en: "Submit Application",   fr: "Soumettre la demande" },
+      btn_retry:      { en: "Retry Submission",     fr: "Réessayer la soumission" },
+      btn_retake:     { en: "↩ Retake",             fr: "↩ Reprendre" },
+      btn_try_again:  { en: "Try Again",            fr: "Réessayer" },
+      btn_take_photo: { en: "📷 Take Photo",         fr: "📷 Prendre une photo" },
+      btn_add_property: { en: "+ Add another property", fr: "+ Ajouter une autre propriété" },
+      btn_add_mortgage: { en: "+ Add another mortgage", fr: "+ Ajouter une autre hypothèque" },
+      // Section 1
+      s1_title: { en: "Borrower Information",                          fr: "Informations sur l'emprunteur" },
+      s1_desc:  { en: "Tell us about yourself and your employment.",   fr: "Parlez-nous de vous et de votre emploi." },
+      label_name:           { en: "Full Name",                     fr: "Nom complet" },
+      label_email:          { en: "Email Address",                 fr: "Adresse courriel" },
+      label_cellPhone:      { en: "Cell Phone",                    fr: "Téléphone cellulaire" },
+      label_otherPhone:     { en: "Other Phone",                   fr: "Autre téléphone" },
+      label_address:        { en: "Address",                       fr: "Adresse" },
+      label_employerName:   { en: "Employer Name",                 fr: "Nom de l'employeur" },
+      label_employerAddr:   { en: "Employer Address",              fr: "Adresse de l'employeur" },
+      label_yearsEmployed:  { en: "Number of Years with Employer", fr: "Nombre d'années chez l'employeur" },
+      label_employmentType: { en: "Employment Type",               fr: "Type d'emploi" },
+      label_compType:       { en: "Compensation Type",             fr: "Type de rémunération" },
+      label_employerPhone:  { en: "Employer Telephone",            fr: "Téléphone de l'employeur" },
+      label_employerEmail:  { en: "Employer Email",                fr: "Courriel de l'employeur" },
+      opt_select:     { en: "Select...",   fr: "Sélectionner..." },
+      opt_permanent:  { en: "Permanent",   fr: "Permanent" },
+      opt_parttime:   { en: "Part-time",   fr: "Temps partiel" },
+      opt_salary:     { en: "Salary",      fr: "Salaire" },
+      opt_commission: { en: "Commission",  fr: "Commission" },
+      // Section 2
+      s2_title: { en: "Income",                                                   fr: "Revenus" },
+      s2_desc:  { en: "List all recurring gross monthly income sources.",         fr: "Indiquez toutes vos sources de revenu brut mensuel récurrentes." },
+      th_source:        { en: "Source / Description",            fr: "Source / Description" },
+      th_gross:         { en: "Gross Monthly Amount ($)",        fr: "Montant brut mensuel ($)" },
+      label_totalGross: { en: "Total Gross Monthly Income ($)",  fr: "Revenu brut mensuel total ($)" },
+      note_auto_calc:   { en: "Automatically calculated.",       fr: "Calculé automatiquement." },
+      placeholder_income1: { en: "Primary income",      fr: "Revenu principal" },
+      placeholder_income2: { en: "Additional income",   fr: "Revenu supplémentaire" },
+      placeholder_income3: { en: "Additional income",   fr: "Revenu supplémentaire" },
+      placeholder_invest:  { en: "Investments / other", fr: "Investissements / autre" },
+      // Section 3
+      s3_title: { en: "Monthly Obligations",                                         fr: "Obligations mensuelles" },
+      s3_desc:  { en: "Enter all fixed monthly housing and legal obligations.",       fr: "Entrez toutes vos obligations mensuelles fixes de logement et légales." },
+      label_housing:          { en: "Housing (Rent / Mortgage) ($)",          fr: "Logement (loyer / hypothèque) ($)" },
+      label_propertyTaxes:    { en: "Property Taxes ($)",                     fr: "Taxes foncières ($)" },
+      label_condoFees:        { en: "Condo Fees ($)",                         fr: "Frais de copropriété ($)" },
+      label_insurance:        { en: "Insurance ($)",                          fr: "Assurance ($)" },
+      label_heating:          { en: "Heating ($)",                            fr: "Chauffage ($)" },
+      label_alimony:          { en: "Alimony ($)",                            fr: "Pension alimentaire ($)" },
+      label_childSupport:     { en: "Child Support / Alimony ($)",            fr: "Pension alimentaire / soutien ($)" },
+      label_otherObligations: { en: "Other Legal Financial Obligations ($)",  fr: "Autres obligations financières légales ($)" },
+      label_totalObligations: { en: "Total Monthly Obligations ($)",          fr: "Total des obligations mensuelles ($)" },
+      // Section 4
+      s4_title: { en: "Debt Payments",                                          fr: "Paiements de dettes" },
+      s4_desc:  { en: "Minimum required monthly payments for each debt.",       fr: "Paiements mensuels minimaux requis pour chaque dette." },
+      label_creditCards:       { en: "Credit Cards (minimum payment) ($)", fr: "Cartes de crédit (paiement minimum) ($)" },
+      label_personalLoan:      { en: "Personal Loan ($)",                  fr: "Prêt personnel ($)" },
+      label_autoLoan:          { en: "Auto Loan ($)",                      fr: "Prêt automobile ($)" },
+      label_studentLoan:       { en: "Student Loan ($)",                   fr: "Prêt étudiant ($)" },
+      label_surecapInterest:   { en: "SureCap Loan Interest ($)",          fr: "Intérêts du prêt SureCap ($)" },
+      label_totalDebtExpenses: { en: "Total Debt Expenses ($)",            fr: "Total des dépenses de dette ($)" },
+      label_dti:               { en: "Debt-to-Income Ratio (%)",           fr: "Ratio dette/revenu (%)" },
+      note_dti: { en: "(Total Obligations + Total Debt Expenses) ÷ Total Income × 100", fr: "(Obligations totales + Dépenses de dette totales) ÷ Revenu total × 100" },
+      // Section 5
+      s5_title: { en: "Assets",                                             fr: "Actifs" },
+      s5_desc:  { en: "Assets including properties and investments.",       fr: "Actifs incluant les propriétés et les placements." },
+      label_stocks:      { en: "Stocks and Investments ($)", fr: "Actions et placements ($)" },
+      label_otherAssets: { en: "Other Assets ($)",           fr: "Autres actifs ($)" },
+      label_prop1Value:  { en: "Property 1 Value ($)",       fr: "Valeur de la propriété 1 ($)" },
+      label_prop2Value:  { en: "Property 2 Value ($)",       fr: "Valeur de la propriété 2 ($)" },
+      label_prop3Value:  { en: "Property 3 Value ($)",       fr: "Valeur de la propriété 3 ($)" },
+      label_prop4Value:  { en: "Property 4 Value ($)",       fr: "Valeur de la propriété 4 ($)" },
+      label_prop5Value:  { en: "Property 5 Value ($)",       fr: "Valeur de la propriété 5 ($)" },
+      label_totalAssets: { en: "Total Assets ($)",           fr: "Total des actifs ($)" },
+      // Section 6
+      s6_title: { en: "Liabilities",              fr: "Passifs" },
+      s6_desc:  { en: "Outstanding debt balances.", fr: "Soldes de dettes en cours." },
+      label_ccDebt:            { en: "Credit Card Debt ($)",           fr: "Dette de carte de crédit ($)" },
+      label_lineOfCredit:      { en: "Line of Credit ($)",             fr: "Marge de crédit ($)" },
+      label_personalLoansLiab: { en: "Personal Loans ($)",             fr: "Prêts personnels ($)" },
+      label_surecapLoan:       { en: "SureCap Loan ($)",               fr: "Prêt SureCap ($)" },
+      label_mortgage1:         { en: "Mortgage — Property 1 ($)",      fr: "Hypothèque — Propriété 1 ($)" },
+      label_mortgage2:         { en: "Mortgage — Property 2 ($)",      fr: "Hypothèque — Propriété 2 ($)" },
+      label_mortgage3:         { en: "Mortgage — Property 3 ($)",      fr: "Hypothèque — Propriété 3 ($)" },
+      label_mortgage4:         { en: "Mortgage — Property 4 ($)",      fr: "Hypothèque — Propriété 4 ($)" },
+      label_mortgage5:         { en: "Mortgage — Property 5 ($)",      fr: "Hypothèque — Propriété 5 ($)" },
+      label_totalDebt:         { en: "Total Debt ($)",                  fr: "Total des dettes ($)" },
+      label_netWorth:          { en: "Net Worth ($)",                   fr: "Valeur nette ($)" },
+      note_netWorth:           { en: "Total Assets − Total Debt",       fr: "Total des actifs − Total des dettes" },
+      // Section 7
+      s7_title: { en: "Property Details",                                               fr: "Détails des propriétés" },
+      s7_desc:  { en: "Enter details for your primary property. You can add up to four more.", fr: "Entrez les détails de votre propriété principale. Vous pouvez en ajouter jusqu'à quatre autres." },
+      pill_prop1: { en: "Property 1", fr: "Propriété 1" },
+      pill_prop2: { en: "Property 2", fr: "Propriété 2" },
+      pill_prop3: { en: "Property 3", fr: "Propriété 3" },
+      pill_prop4: { en: "Property 4", fr: "Propriété 4" },
+      pill_prop5: { en: "Property 5", fr: "Propriété 5" },
+      btn_remove_prop: { en: "✕ Remove", fr: "✕ Supprimer" },
+      label_civic:       { en: "Civic Number",              fr: "Numéro civique" },
+      label_street:      { en: "Street Name",               fr: "Nom de la rue" },
+      label_city:        { en: "City",                      fr: "Ville" },
+      label_postal:      { en: "Postal Code",               fr: "Code postal" },
+      label_lot:         { en: "Lot Number",                fr: "Numéro de lot" },
+      label_marketValue: { en: "Property Market Value ($)", fr: "Valeur marchande de la propriété ($)" },
+      label_mortgageAmt: { en: "Total Mortgage Amount ($)", fr: "Montant hypothécaire total ($)" },
+      label_equity:      { en: "Equity ($)",                fr: "Valeur nette immobilière ($)" },
+      label_ltv:         { en: "Debt-to-Value Ratio (%)",   fr: "Ratio prêt-valeur (%)" },
+      // Section 8
+      s8_title: { en: "Documents &amp; Signature",  fr: "Documents et signature" },
+      s8_desc:  { en: "Upload each document using the button on its row. The checkbox ticks automatically when a file is uploaded. Files are saved to Google Drive immediately — not on submit.", fr: "Téléversez chaque document à l'aide du bouton sur sa rangée. La case se coche automatiquement lors du téléversement. Les fichiers sont sauvegardés dans Google Drive immédiatement — pas à la soumission." },
+      label_docs_checklist: { en: "Documents Checklist",                          fr: "Liste de documents" },
+      doc_utilities:        { en: "Utilities",                                     fr: "Services publics" },
+      doc_pay_stubs:        { en: "Pay stubs / proof of income",                   fr: "Talons de paie / preuve de revenu" },
+      doc_gov_assessments:  { en: "Government assessments (3 years)",              fr: "Avis de cotisation gouvernementaux (3 ans)" },
+      doc_tax_bills:        { en: "Municipal tax bills",                           fr: "Factures de taxes municipales" },
+      doc_condo_fees:       { en: "Condo fees",                                    fr: "Frais de copropriété" },
+      doc_loan_contracts:   { en: "Other loan contracts and interest statements",  fr: "Autres contrats de prêt et relevés d'intérêts" },
+      doc_credit_report:    { en: "Credit report",                                 fr: "Rapport de crédit" },
+      btn_choose_file:      { en: "📎 Choose file",                                fr: "📎 Choisir un fichier" },
+      doc_size_note:        { en: "Accepted: PDF, JPG, PNG — max 10 MB per file, up to 5 files per category. Files are uploaded to Google Drive immediately.", fr: "Acceptés : PDF, JPG, PNG — max 10 Mo par fichier, jusqu'à 5 fichiers par catégorie. Les fichiers sont téléversés dans Google Drive immédiatement." },
+      // Section 9
+      s9_title: { en: "Identity Verification", fr: "Vérification d'identité" },
+      s9_desc:  { en: "Please take a quick selfie so we can confirm you are the person submitting this application. Position your face inside the oval and press <strong>Take Photo</strong>.", fr: "Veuillez prendre un égoportrait rapide afin que nous puissions confirmer que vous êtes bien la personne qui soumet cette demande. Positionnez votre visage dans l'ovale et appuyez sur <strong>Prendre une photo</strong>." },
+      camera_denied: { en: "Camera access was denied or unavailable.<br>Please allow camera access and try again.", fr: "L'accès à la caméra a été refusé ou est indisponible.<br>Veuillez autoriser l'accès à la caméra et réessayer." },
+      consent_note:  { en: "By capturing and submitting this photo you consent to Surecap Finance using it solely for identity verification purposes.", fr: "En capturant et soumettant cette photo, vous consentez à ce que Surecap Finance l'utilise uniquement à des fins de vérification d'identité." },
+      // Section 10
+      s10_title:    { en: "Review &amp; Submit",           fr: "Réviser et soumettre" },
+      s10_desc:     { en: "Review and submit your application to Surecap Finance.", fr: "Révisez et soumettez votre demande à Surecap Finance." },
+      summary_name:   { en: "Borrower Name",                  fr: "Nom de l'emprunteur" },
+      summary_income: { en: "Total Gross Monthly Income ($)", fr: "Revenu brut mensuel total ($)" },
+      summary_dti:    { en: "Debt-to-Income Ratio (%)",       fr: "Ratio dette/revenu (%)" },
+      summary_nw:     { en: "Net Worth ($)",                  fr: "Valeur nette ($)" },
+      submit_note:    { en: "By submitting, you confirm the information is accurate and complete.", fr: "En soumettant, vous confirmez que les informations sont exactes et complètes." },
+      submitting_msg: { en: "Submitting your application securely...", fr: "Soumission sécurisée de votre demande en cours..." },
+      submit_error:   { en: "There was a problem submitting your application. Please check your connection and try again.", fr: "Un problème est survenu lors de la soumission. Veuillez vérifier votre connexion et réessayer." },
+      // Confirmation cards
+      confirm_title:  { en: "Thank you for your application.",    fr: "Merci pour votre demande." },
+      confirm_body:   { en: "Your Surecap Finance credit application has been securely submitted.", fr: "Votre demande de crédit Surecap Finance a été soumise en toute sécurité." },
+      confirm_footer: { en: "Our team will review your information and contact you shortly.",       fr: "Notre équipe examinera vos informations et vous contactera sous peu." },
+      signing_title:  { en: "Almost done — please sign your loan agreement",                       fr: "Presque terminé — veuillez signer votre contrat de prêt" },
+      signing_body:   { en: "Review the document below and add your signature to complete your application.", fr: "Révisez le document ci-dessous et ajoutez votre signature pour compléter votre demande." },
+      signed_title:   { en: "Application Complete ✓",            fr: "Demande complétée ✓" },
+      signed_body:    { en: "Your loan application has been submitted and signed. You will receive a copy of the signed agreement by email shortly.", fr: "Votre demande de prêt a été soumise et signée. Vous recevrez une copie du contrat signé par courriel sous peu." },
+      // Validation errors
+      err_required: { en: "Please fill out this field.",            fr: "Veuillez remplir ce champ." },
+      err_email:    { en: "Please enter a valid email address.",    fr: "Veuillez entrer une adresse courriel valide." },
+      err_income:   { en: "Total income must be greater than 0.",  fr: "Le revenu total doit être supérieur à 0." },
+      err_selfie:   { en: "Please take a photo before proceeding.",fr: "Veuillez prendre une photo avant de continuer." },
+      err_review:   { en: "Please review the highlighted fields before submitting.", fr: "Veuillez vérifier les champs en surbrillance avant de soumettre." },
+    };
+
+    var currentLang = 'en';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+      document.getElementById('btnFR').classList.toggle('active', lang === 'fr');
+
+      // Regular data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (!i18n[key]) return;
+        var text = i18n[key][lang];
+        // Options — use textContent to avoid HTML injection
+        if (el.tagName === 'OPTION') { el.textContent = text; return; }
+        // Labels with required asterisk — update only the leading text node
+        var requiredSpan = el.querySelector('.required');
+        if (requiredSpan) { el.childNodes[0].textContent = text; return; }
+        // Labels containing a nested <input> (file-pick-btn) — update only the text node, preserve the input
+        var nestedInput = el.tagName === 'LABEL' && el.querySelector('input');
+        if (nestedInput) {
+          // Find the first text node and update it
+          for (var i = 0; i < el.childNodes.length; i++) {
+            if (el.childNodes[i].nodeType === 3) { // TEXT_NODE
+              el.childNodes[i].textContent = text;
+              return;
+            }
+          }
+          return;
+        }
+        el.innerHTML = text;
+      });
+
+      // Placeholder attributes
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n-placeholder');
+        if (i18n[key]) el.setAttribute('placeholder', i18n[key][lang]);
+      });
+
+      // Progress bar text (parse current step numbers)
+      var progressText = document.getElementById('progressText');
+      if (progressText) {
+        var nums = progressText.textContent.match(/\d+/g);
+        if (nums && nums.length >= 2) {
+          progressText.textContent = i18n.progress_step[lang] + ' ' + nums[0] + ' ' + i18n.progress_of[lang] + ' ' + nums[1];
+        }
+      }
+
+      // Re-translate any visible validation error messages
+      document.querySelectorAll('.error-message[data-err-key]').forEach(function(el) {
+        var key = el.getAttribute('data-err-key');
+        if (i18n[key]) el.textContent = i18n[key][lang];
+      });
+    }
+    // ── End i18n ──────────────────────────────────────────────────────────────
+
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcCMwuIOByhXEWSVGM0JzfXJHJDSUMg7WRB2VWIs7AmRp7fLfOsnQ_-X5X6-JrciGN8g/exec";
 
     function parseCurrency(value) {
@@ -1258,12 +1519,16 @@
       recalcPropertyEquity(3);
     }
 
-    function showFieldError(input, message) {
+    function showFieldError(input, errKey) {
       const field = input.closest(".form-field");
       if (!field) return;
       field.classList.add("has-error");
       const small = field.querySelector(".error-message");
-      if (small) small.textContent = message || "This field is required.";
+      if (small) {
+        var key = errKey || 'err_required';
+        small.textContent = i18n[key] ? i18n[key][currentLang] : errKey;
+        small.setAttribute('data-err-key', key);
+      }
     }
 
     function clearFieldError(input) {
@@ -1278,13 +1543,13 @@
       clearFieldError(input);
       const value = input.value.trim();
       const isRequired = input.dataset.required === "true";
-      if (isRequired && !value) { showFieldError(input, "Please fill out this field."); return false; }
+      if (isRequired && !value) { showFieldError(input, 'err_required'); return false; }
       if (value && input.type === "email") {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { showFieldError(input, "Please enter a valid email address."); return false; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { showFieldError(input, 'err_email'); return false; }
       }
       if (value && input.id === "totalGrossIncome") {
         const num = parseCurrency(value);
-        if (!num || num <= 0) { showFieldError(input, "Total income must be greater than 0."); return false; }
+        if (!num || num <= 0) { showFieldError(input, 'err_income'); return false; }
       }
       return true;
     }
@@ -1298,7 +1563,7 @@
         var selfieErrEl = document.getElementById("selfieError");
         selfieErrEl.textContent = "";
         if (!selfieUploaded) {
-          selfieErrEl.textContent = "Please take a photo before proceeding.";
+          selfieErrEl.textContent = i18n.err_selfie[currentLang];
           valid = false;
         }
       }
@@ -1327,7 +1592,7 @@
     function showStep(stepNum) {
       currentStep = stepNum;
       steps.forEach(function(step) { step.classList.toggle("active", Number(step.dataset.step) === stepNum); });
-      progressText.textContent = "Step " + stepNum + " of " + totalSteps;
+      progressText.textContent = i18n.progress_step[currentLang] + " " + stepNum + " " + i18n.progress_of[currentLang] + " " + totalSteps;
       progressFill.style.width = (stepNum / totalSteps) * 100 + "%";
       if (stepNum === totalSteps) { stepNav.classList.add("hidden"); updateSummary(); }
       else stepNav.classList.remove("hidden");
@@ -1731,12 +1996,12 @@
       retryBtn.classList.add("hidden");
       var i;
       for (i = 1; i <= totalSteps - 1; i++) {
-        if (!validateStep(i)) { showStep(i); submitStatus.textContent = "Please review the highlighted fields before submitting."; submitStatus.classList.add("error"); return; }
+        if (!validateStep(i)) { showStep(i); submitStatus.textContent = i18n.err_review[currentLang]; submitStatus.classList.add("error"); return; }
       }
       var payload = buildPayload();
       submitBtn.disabled = true;
-      submitBtn.textContent = "Submitting...";
-      submitStatus.textContent = "Submitting your application securely...";
+      submitBtn.textContent = i18n.progress_step[currentLang] === 'Étape' ? 'Envoi en cours…' : 'Submitting…';
+      submitStatus.textContent = i18n.submitting_msg[currentLang];
 
       // Apps Script Web Apps reject CORS preflight requests.
       // Using Content-Type: text/plain avoids the preflight while
@@ -1775,13 +2040,13 @@
           } else throw new Error(result && result.message ? result.message : "Unknown error");
         })
         .catch(function(err) {
-          submitStatus.textContent = "There was a problem submitting your application. Please check your connection and try again.";
+          submitStatus.textContent = i18n.submit_error[currentLang];
           submitStatus.classList.add("error");
           retryBtn.classList.remove("hidden");
         })
         .finally(function() {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Application";
+          submitBtn.textContent = i18n.btn_submit[currentLang];
         });
     }
 
