@@ -12,9 +12,10 @@
 // ─────────────────────────────────────────
 // CONFIGURE THESE BEFORE DEPLOYING
 // ─────────────────────────────────────────
-var LENDER_EMAIL  = "isafariapp@gmail.com";
+var LENDER_EMAIL  = "john@johnknot.com";
 var COMPANY_NAME  = "Surecap Finance";
-var REPLY_TO      = "isafariapp@gmail.com";
+var REPLY_TO      = "applications@financesurecap.com";
+var SENDER_EMAIL  = "applications@financesurecap.com";
 var DRIVE_ROOT    = "Surecap Applications"; // top-level Drive folder name
 
 
@@ -309,11 +310,10 @@ function handleFormSubmit(data) {
         Logger.log("Docuseal error: " + docusealErr);
         // Fallback: send unsigned PDF by email so submission is never lost
         if (data.email) {
-          MailApp.sendEmail({
-            to:       data.email,
-            subject:  "Your " + COMPANY_NAME + " application — confirmation & copy",
-            body:     applicantBody,
-            replyTo:  LENDER_EMAIL,
+          GmailApp.sendEmail(data.email, "Your " + COMPANY_NAME + " application — confirmation & copy", applicantBody, {
+            from: SENDER_EMAIL,
+            replyTo: REPLY_TO,
+            name: "Surecap Finance",
             attachments: [pdfBlob]
           });
         }
@@ -371,7 +371,9 @@ function handleFormSubmit(data) {
       replyTo:  data.email
     };
     if (allAttachments.length > 0) lenderMailOptions.attachments = allAttachments;
-    MailApp.sendEmail(lenderMailOptions);
+    var lenderOpts = { from: SENDER_EMAIL, replyTo: REPLY_TO, name: "Surecap Finance" };
+    if (lenderMailOptions.attachments) lenderOpts.attachments = lenderMailOptions.attachments;
+    GmailApp.sendEmail(lenderMailOptions.to, lenderMailOptions.subject, lenderMailOptions.body, lenderOpts);
 
     if (data.email) {
       var applicantMailOptions = {
@@ -380,7 +382,11 @@ function handleFormSubmit(data) {
         body:     applicantBody,
         replyTo:  LENDER_EMAIL
       };
-      MailApp.sendEmail(applicantMailOptions);
+      GmailApp.sendEmail(applicantMailOptions.to, applicantMailOptions.subject, applicantMailOptions.body, {
+        from: SENDER_EMAIL,
+        replyTo: REPLY_TO,
+        name: "Surecap Finance"
+      });
     }
 
     return jsonResponse({ result: "success", _v: "docuseal" });
@@ -437,19 +443,18 @@ function handleDocusealWebhook(data) {
   var signedBody = "Dear Applicant,\n\nThank you for completing your loan application with " + COMPANY_NAME + ".\n\nPlease find your signed loan agreement attached. Our team will be in touch shortly.\n\nSincerely,\n" + COMPANY_NAME + " Team";
 
   if (signerEmail) {
-    MailApp.sendEmail({
-      to:       signerEmail,
-      subject:  "Your " + COMPANY_NAME + " loan application — signed copy",
-      body:     signedBody,
-      replyTo:  LENDER_EMAIL,
+    GmailApp.sendEmail(signerEmail, "Your " + COMPANY_NAME + " loan application — signed copy", signedBody, {
+      from: SENDER_EMAIL,
+      replyTo: REPLY_TO,
+      name: "Surecap Finance",
       attachments: [signedPdfBlob]
     });
   }
 
-  MailApp.sendEmail({
-    to:       LENDER_EMAIL,
-    subject:  "Signed loan application received — " + (signerEmail || "applicant"),
-    body:     "A loan application has been signed by " + (signerEmail || "applicant") + ". Please find the signed agreement and audit log attached.",
+  GmailApp.sendEmail(LENDER_EMAIL, "Signed loan application received — " + (signerEmail || "applicant"), "A loan application has been signed by " + (signerEmail || "applicant") + ". Please find the signed agreement and audit log attached.", {
+    from: SENDER_EMAIL,
+    replyTo: REPLY_TO,
+    name: "Surecap Finance",
     attachments: lenderAttachments
   });
 
@@ -776,6 +781,7 @@ function authorizeAll() {
   SpreadsheetApp.getActiveSpreadsheet();
   DriveApp.getRootFolder();
   MailApp.getRemainingDailyQuota();
+  GmailApp.getAliases();
   var tempDoc = DocumentApp.create("_surecap_auth_check");
   DriveApp.getFileById(tempDoc.getId()).setTrashed(true); // clean up immediately
   Logger.log("All services authorized successfully. You can now redeploy the Web App.");
